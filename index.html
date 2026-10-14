@@ -1,0 +1,1134 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#ff4f6e">
+<title>Pick. — 로직이 보이는 소개팅</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+:root{--brand:#ff4f6e;--grad:linear-gradient(135deg,#ff4f6e,#ff8a5c);--bg:#fff;--soft:#f6f6f8;--line:#eeeef2;--text:#16161a;--muted:#8a8a96;--blue:#3b82f6;--gold:#f5b301}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0}
+body{font-family:Pretendard,-apple-system,system-ui,"Apple SD Gothic Neo",sans-serif;color:var(--text);background:#f3eef0;font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+@media(min-width:600px){body{background:radial-gradient(circle at 15% 15%,#ffdfe6,transparent 35%),radial-gradient(circle at 85% 85%,#ffe6d6,transparent 35%),#f6f1f3}}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+img{display:block}
+svg{flex:none}
+.phone{max-width:440px;margin:0 auto;min-height:100dvh;background:var(--bg);position:relative;box-shadow:0 0 60px rgba(0,0,0,.08)}
+.muted{color:var(--muted)}.center{text-align:center}
+.fine{font-size:12px;color:var(--muted);margin:10px 0 0}
+.pad{padding:8px 20px 16px}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:50px;padding:0 20px;border-radius:15px;border:1px solid var(--line);background:#fff;font-weight:700;font-size:15px;transition:transform .1s}
+.btn:active{transform:scale(.98)}
+.btn svg{width:18px;height:18px}
+.btn.primary{background:var(--grad);border:0;color:#fff;box-shadow:0 8px 20px rgba(255,79,110,.28)}
+.btn.ghost{background:var(--soft);border-color:transparent}
+.btn.block{width:100%}
+.btn.sm{height:40px;padding:0 14px;font-size:14px;border-radius:12px}
+.btn:disabled{opacity:.55;box-shadow:none;cursor:default}
+.link{border:0;background:none;color:var(--brand);font-weight:700;padding:6px}
+.icon-btn{width:40px;height:40px;border-radius:12px;border:0;background:transparent;display:grid;place-items:center;color:var(--text)}
+.icon-btn svg{width:22px;height:22px}
+
+/* top & tab bars */
+.topbar{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:6px;height:56px;padding:0 10px 0 16px;background:rgba(255,255,255,.94);backdrop-filter:blur(10px)}
+.topbar.plain{padding:0 6px}
+.logo{font-weight:900;font-size:24px;letter-spacing:-.05em;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.tb-title{flex:1;font-weight:800;font-size:17px;padding-left:6px}
+.tabbar{position:sticky;bottom:0;z-index:5;display:grid;grid-template-columns:repeat(5,1fr);height:64px;background:#fff;border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+.tabbar button{border:0;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;color:#a1a1ab;font-weight:600;position:relative}
+.tabbar svg{width:24px;height:24px}
+.tabbar .on{color:var(--brand)}
+.dot-badge{position:absolute;top:7px;left:calc(50% + 5px);background:var(--brand);color:#fff;font-size:10px;font-style:normal;font-weight:800;min-width:17px;height:17px;border-radius:9px;padding:0 4px;display:grid;place-items:center;border:2px solid #fff}
+.content{min-height:calc(100dvh - 120px);padding:4px 16px 28px}
+
+/* landing */
+.landing{min-height:100dvh;display:flex;flex-direction:column;background:linear-gradient(180deg,#fff3f5,#fff 55%)}
+.collage{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:26px 20px 0}
+.collage img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:18px;box-shadow:0 10px 24px rgba(0,0,0,.08);background:#fde}
+.collage img:nth-child(3n+2){transform:translateY(22px)}
+.land-body{padding:40px 24px 28px;display:flex;flex-direction:column;gap:10px;margin-top:auto}
+.logo.big{font-size:44px}
+.land-body h1{font-size:28px;line-height:1.3;letter-spacing:-.03em;margin:0}
+.land-body>p{color:var(--muted);margin:0 0 14px}
+
+/* forms */
+.fld{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.fld>span,.group-h{font-size:13px;font-weight:700;color:#4a4a55}
+.fld input,.fld select,.fld textarea,.prompt-edit select,.prompt-edit textarea{width:100%;height:50px;border:1.5px solid var(--line);background:var(--soft);border-radius:14px;padding:0 14px;font-size:15px;outline:none;transition:border .15s}
+.fld textarea,.prompt-edit textarea{height:auto;min-height:80px;padding:12px 14px;resize:vertical}
+.fld input:focus,.fld select:focus,.fld textarea:focus,.prompt-edit textarea:focus{border-color:var(--brand);background:#fff}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.blk{margin-bottom:18px}
+.group-h{display:flex;justify-content:space-between;margin-bottom:8px}
+.group-h b{color:var(--brand)}
+.chips-select{display:flex;flex-wrap:wrap;gap:8px}
+.copt input{position:absolute;opacity:0;pointer-events:none}
+.copt span{display:inline-flex;align-items:center;gap:4px;height:40px;padding:0 15px;border-radius:99px;border:1.5px solid var(--line);background:#fff;font-weight:600;font-size:14px;cursor:pointer;user-select:none;transition:.15s}
+.copt input:checked+span{border-color:var(--brand);background:#fff1f3;color:var(--brand)}
+.copt input:focus-visible+span{outline:2px solid var(--brand)}
+.gender-pick{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.gender-pick .copt span{height:62px;width:100%;justify-content:center;border-radius:16px;font-size:16px}
+.check-row{display:flex;gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line);font-size:14.5px;cursor:pointer}
+.check-row input{width:20px;height:20px;accent-color:var(--brand);flex:none}
+.sub-h{font-size:16px;margin:4px 0 12px;display:flex;align-items:center;gap:6px}
+.hint{font-size:12.5px;color:var(--muted);margin:-8px 0 16px}
+.photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.pslot{position:relative;aspect-ratio:4/5;border-radius:16px;overflow:hidden;background:var(--soft);border:1.5px dashed #ddd;display:grid;place-items:center;color:#bbb}
+.pslot img{width:100%;height:100%;object-fit:cover}
+.pslot .del{position:absolute;top:6px;right:6px;width:26px;height:26px;border-radius:50%;border:0;background:rgba(0,0,0,.55);color:#fff;display:grid;place-items:center}
+.pslot .del svg{width:14px;height:14px}
+.pslot .add{border:0;background:none;width:100%;height:100%;display:grid;place-items:center;color:var(--brand)}
+.pslot .add svg{width:30px;height:30px}
+.main-tag{position:absolute;left:6px;bottom:6px;background:var(--brand);color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px}
+.prompt-edit{background:var(--soft);border-radius:16px;padding:10px;margin-bottom:10px;display:flex;flex-direction:column;gap:8px}
+.prompt-edit select,.prompt-edit textarea{background:#fff;min-height:0}
+.prompt-edit textarea{min-height:60px}
+
+/* signup */
+.su-top{position:sticky;top:0;background:#fff;z-index:5;padding-bottom:4px}
+.su-top .topbar{justify-content:space-between}
+.su-step{font-size:13px;color:var(--muted);font-weight:700}
+.progress{height:4px;background:var(--line);border-radius:99px;margin:0 20px;overflow:hidden}
+.progress i{display:block;height:100%;background:var(--grad);transition:width .3s}
+.su-title{padding:18px 20px 14px}
+.su-title h1{font-size:25px;margin:0 0 4px;letter-spacing:-.03em}
+.su-title p{margin:0;color:var(--muted);font-size:14px}
+.su-foot{position:sticky;bottom:0;background:linear-gradient(rgba(255,255,255,0),#fff 35%);padding:22px 0 16px;margin-top:8px}
+
+/* welcome */
+.welcome{min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px 24px;gap:8px;background:linear-gradient(180deg,#fff3f5,#fff)}
+.big-check{width:88px;height:88px;border-radius:50%;background:var(--grad);display:grid;place-items:center;color:#fff;box-shadow:0 14px 30px rgba(255,79,110,.35);margin-bottom:10px}
+.big-check svg{width:44px;height:44px;stroke-width:3}
+.welcome h1{margin:0;font-size:28px}
+.welcome p{color:#555;margin:0 0 20px}
+
+/* shared bits */
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:12.5px;padding:4px 10px;border-radius:99px;background:var(--soft);color:#3f3f46;font-weight:600}
+.chip.hit{background:#fff1f3;color:var(--brand)}
+.vbadge{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--blue);color:#fff}
+.vbadge svg{width:12px;height:12px;stroke-width:3.5}
+.online{display:inline-flex;align-items:center;gap:4px;color:#16a34a;font-weight:700;font-size:13px}
+.online::before{content:"";width:7px;height:7px;border-radius:50%;background:#22c55e}
+.ring{--v:0;width:60px;height:60px;flex:none;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--brand) calc(var(--v)*1%),var(--line) 0)}
+.ring span{width:48px;height:48px;border-radius:50%;background:#fff;display:grid;place-items:center;font-size:17px;font-weight:800;line-height:1}
+.ring small{font-size:10px;color:var(--muted);font-weight:700}
+.bd{display:flex;flex-direction:column;gap:10px}
+.bd-row{display:grid;grid-template-columns:56px 1fr 46px;gap:10px;align-items:center}
+.bd-row .lbl{font-weight:700;font-size:13px}
+.bd-row .pts{text-align:right;font-weight:800;font-size:13px;font-variant-numeric:tabular-nums}
+.bd-row .pts small{color:var(--muted);font-weight:500}
+.bd-row .det{grid-column:2/4;font-size:12px;color:var(--muted);margin-top:-7px}
+.bar{height:7px;background:#f0e9eb;border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--grad);border-radius:99px}
+.sec-h{display:flex;justify-content:space-between;align-items:baseline;margin:26px 0 10px;gap:8px}
+.sec-h h3{margin:0;font-size:17px}
+.sec-h span{font-size:12.5px;color:var(--muted)}
+.sec-h b{color:var(--brand);font-variant-numeric:tabular-nums}
+.empty{text-align:center;padding:50px 20px}
+.empty .big{font-size:52px;margin-bottom:6px}
+.empty h3{margin:0 0 6px;font-size:18px}
+.empty p{color:var(--muted);margin:0 0 18px}
+.empty .btn{margin:4px}
+.note{background:var(--soft);border-radius:14px;padding:12px 14px;font-size:13px;color:#555;margin-bottom:14px}
+
+/* home */
+.eyebrow{font-size:13px;color:var(--brand);font-weight:800;margin:6px 0 2px}
+.home-h{font-size:21px;letter-spacing:-.03em;margin:0 0 6px}
+.funnel{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted);margin-bottom:14px;flex-wrap:wrap}
+.funnel b{color:var(--text)}
+.pick-card{position:relative;border-radius:26px;overflow:hidden;aspect-ratio:4/5;box-shadow:0 16px 36px rgba(0,0,0,.13);cursor:pointer;background:#f3e6ea}
+.pick-card>img{width:100%;height:100%;object-fit:cover}
+.shade{position:absolute;inset:0;background:linear-gradient(180deg,transparent 42%,rgba(0,0,0,.75));pointer-events:none}
+.top-badge{position:absolute;top:14px;left:14px;background:var(--grad);color:#fff;font-weight:800;font-size:13px;padding:6px 12px;border-radius:99px;box-shadow:0 4px 12px rgba(255,79,110,.35)}
+.score-badge{position:absolute;top:14px;right:14px;background:rgba(255,255,255,.95);border-radius:16px;padding:6px 12px;text-align:center;line-height:1.1}
+.score-badge b{display:block;font-size:22px;color:var(--brand)}
+.score-badge small{font-size:11px;color:var(--muted);font-weight:700}
+.ov{position:absolute;left:18px;right:18px;bottom:18px;color:#fff}
+.ov h2{font-size:27px;margin:0;display:flex;align-items:center;gap:8px;letter-spacing:-.02em}
+.ov h2 span{font-weight:500}
+.ov p{margin:2px 0 0;opacity:.92;font-size:14px;display:flex;align-items:center;gap:4px}
+.ov p svg{width:15px;height:15px}
+.why{margin-top:14px;padding:18px;border-radius:22px;background:#fff6f7;border:1px solid #ffe0e6}
+.why h3{margin:0 0 6px;font-size:16px}
+.why>p{margin:0 0 16px;font-size:14.5px;line-height:1.65}
+.row-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:18px}
+.hscroll{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:16px;margin:0 -16px;padding:0 16px 6px;scrollbar-width:none}
+.hscroll::-webkit-scrollbar{display:none}
+.mini{flex:0 0 138px;scroll-snap-align:start;cursor:pointer}
+.mini .ph{position:relative;aspect-ratio:3/4;border-radius:18px;overflow:hidden;background:#f3e6ea}
+.mini img{width:100%;height:100%;object-fit:cover}
+.pill{position:absolute;top:8px;left:8px;background:rgba(255,255,255,.95);color:var(--brand);font-weight:800;font-size:12px;padding:3px 8px;border-radius:99px}
+.mini b{display:block;margin-top:7px;font-size:14.5px}
+.mini small{color:var(--muted);font-size:12.5px}
+.logic-banner{width:100%;margin-top:24px;border:0;text-align:left;background:#17171c;color:#fff;border-radius:20px;padding:16px 18px;display:flex;gap:14px;align-items:center}
+.logic-banner .ico{width:44px;height:44px;border-radius:14px;background:var(--grad);display:grid;place-items:center;flex:none}
+.logic-banner .ico svg{width:22px;height:22px}
+.logic-banner b{display:block;font-size:15.5px}
+.logic-banner small{opacity:.7;font-size:12.5px}
+
+/* discover */
+.content.discover{padding:2px 12px 0;display:flex;flex-direction:column;height:calc(100dvh - 120px);min-height:540px}
+.deck{position:relative;flex:1;min-height:0}
+.scard{position:absolute;inset:0;border-radius:24px;overflow:hidden;background:#f3e6ea;box-shadow:0 12px 30px rgba(0,0,0,.15);touch-action:none;user-select:none;-webkit-user-select:none;transition:transform .25s}
+.scard.under{transform:scale(.95) translateY(12px);filter:brightness(.96)}
+.photos{position:absolute;inset:0}
+.photos img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;pointer-events:none;-webkit-user-drag:none;transition:opacity .15s}
+.photos img.on{opacity:1}
+.pbars{position:absolute;top:10px;left:12px;right:12px;display:flex;gap:4px;z-index:2}
+.pbars i{flex:1;height:3.5px;border-radius:99px;background:rgba(255,255,255,.45)}
+.pbars i.on{background:#fff}
+.scard .ov{pointer-events:none}
+.scard .chip{background:rgba(255,255,255,.22);color:#fff;backdrop-filter:blur(6px)}
+.scard .chip.hit{background:var(--brand);color:#fff}
+.score-pill{display:inline-flex;align-items:center;gap:4px;background:var(--grad);font-weight:800;font-size:13px;padding:4px 10px;border-radius:99px;margin-bottom:6px}
+.sc-why{font-size:13px;opacity:.92;margin:8px 0 0}
+.stamp{position:absolute;top:48px;padding:4px 14px;border:4px solid;border-radius:10px;font-weight:900;font-size:32px;letter-spacing:.06em;opacity:0;z-index:3;pointer-events:none}
+.stamp.like{left:22px;color:#22c55e;transform:rotate(-14deg)}
+.stamp.nope{right:22px;color:#ff4f6e;transform:rotate(14deg)}
+.stamp.super{left:50%;top:auto;bottom:40%;color:var(--blue);transform:translateX(-50%)}
+.actions{display:flex;justify-content:center;align-items:center;gap:14px;padding:14px 0 8px}
+.act{width:62px;height:62px;border-radius:50%;border:0;background:#fff;box-shadow:0 6px 18px rgba(0,0,0,.1);display:grid;place-items:center;transition:transform .12s}
+.act:active{transform:scale(.9)}
+.act svg{width:28px;height:28px}
+.act.sm{width:46px;height:46px}
+.act.sm svg{width:20px;height:20px}
+.act.nope{color:#ff4f6e}
+.act.nope svg{stroke-width:3}
+.act.like{color:#fff;background:var(--grad)}
+.act.super{color:var(--blue)}
+.act.undo{color:var(--gold)}
+.act.info{color:#8b5cf6}
+.act:disabled{opacity:.35}
+.deck-hint{text-align:center;font-size:12px;color:var(--muted);margin:0 0 8px}
+
+/* likes */
+.seg{display:flex;background:var(--soft);border-radius:14px;padding:4px;margin:4px 0 14px}
+.seg button{flex:1;height:38px;border:0;border-radius:11px;background:none;font-weight:700;color:var(--muted)}
+.seg .on{background:#fff;color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.lgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.lcard{position:relative;border-radius:18px;overflow:hidden;aspect-ratio:3/4;cursor:pointer;background:#f3e6ea}
+.lcard>img{width:100%;height:100%;object-fit:cover}
+.lcard .ov{left:12px;right:12px;bottom:12px}
+.lcard .ov h2{font-size:17px}
+.lcard .ov p{font-size:12px}
+.lcard .tag{position:absolute;top:8px;left:8px;font-size:11.5px;font-weight:800;padding:3px 9px;border-radius:99px;background:#fff;color:var(--brand)}
+.lcard .tag.wait{color:var(--muted)}
+
+/* chat list */
+.avatars .av{flex:0 0 74px;text-align:center;cursor:pointer;scroll-snap-align:start}
+.ring-img{width:70px;height:70px;border-radius:50%;padding:3px;background:var(--grad)}
+.ring-img img{width:100%;height:100%;border-radius:50%;object-fit:cover;border:3px solid #fff;background:#f3e6ea}
+.av small{display:block;font-size:12.5px;font-weight:700;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.convo{display:flex;gap:12px;align-items:center;padding:10px 4px;cursor:pointer;border-radius:14px}
+.convo:active{background:var(--soft)}
+.convo>img{width:56px;height:56px;border-radius:50%;object-fit:cover;flex:none;background:#f3e6ea}
+.convo .mid{flex:1;min-width:0}
+.convo b{font-size:15px}
+.convo p{margin:2px 0 0;color:var(--muted);font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.convo.unread p{color:var(--text);font-weight:600}
+.convo .time{font-size:12px;color:var(--muted);text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.udot{width:9px;height:9px;border-radius:50%;background:var(--brand)}
+
+/* layers */
+.sheet-full{position:fixed;top:0;bottom:0;left:0;right:0;margin:0 auto;width:100%;max-width:440px;background:#fff;z-index:40;overflow-y:auto;animation:up .25s ease}
+@keyframes up{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+
+/* chat room */
+.chat-room{display:flex;flex-direction:column;overflow:hidden}
+.chat-room .topbar{border-bottom:1px solid var(--line);padding:0 6px}
+.chat-room .topbar>img{width:38px;height:38px;border-radius:50%;object-fit:cover;cursor:pointer;background:#f3e6ea}
+.who{flex:1;line-height:1.25;cursor:pointer}
+.who small{display:block;color:var(--muted);font-size:12px}
+.msgs{flex:1;overflow-y:auto;padding:12px 14px 16px;display:flex;flex-direction:column;gap:5px}
+.match-intro{text-align:center;padding:18px 10px 20px;color:var(--muted);font-size:13px}
+.match-intro .pics{display:flex;justify-content:center;margin-bottom:10px}
+.match-intro .pics img{width:64px;height:64px;border-radius:50%;object-fit:cover;border:3px solid #fff;box-shadow:0 4px 12px rgba(0,0,0,.1);background:#f3e6ea}
+.match-intro .pics img+img{margin-left:-14px}
+.match-intro b{color:var(--text)}
+.bubble{max-width:76%;padding:10px 14px;border-radius:20px;font-size:14.5px;line-height:1.45;word-break:break-word}
+.bubble.them{align-self:flex-start;background:var(--soft);border-bottom-left-radius:6px}
+.bubble.me{align-self:flex-end;background:var(--grad);color:#fff;border-bottom-right-radius:6px}
+.btime{font-size:10.5px;color:var(--muted);margin:0 4px 6px}
+.btime.me{align-self:flex-end}
+.typing{display:inline-flex;gap:4px;align-items:center;height:20px}
+.typing i{width:7px;height:7px;border-radius:50%;background:#bbb;animation:blink 1s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes blink{0%,80%,100%{opacity:.3}40%{opacity:1}}
+.ice{display:flex;gap:8px;overflow-x:auto;padding:8px 14px 2px;scrollbar-width:none}
+.ice::-webkit-scrollbar{display:none}
+.ice button{flex:none;border:1.5px solid #ffd2da;background:#fff6f7;color:var(--brand);border-radius:99px;padding:8px 14px;font-size:13px;font-weight:600}
+.composer{display:flex;gap:8px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:#fff}
+.composer input{flex:1;height:44px;border-radius:22px;border:0;background:var(--soft);padding:0 16px;outline:none;min-width:0}
+.send{width:44px;height:44px;border-radius:50%;border:0;background:var(--grad);color:#fff;display:grid;place-items:center;flex:none}
+.send svg{width:20px;height:20px}
+
+/* detail */
+.detail{padding-bottom:110px}
+.carousel{position:relative;aspect-ratio:4/5;background:#f3e6ea}
+.tz{position:absolute;top:0;bottom:0;width:40%;z-index:2}
+.tz.l{left:0}.tz.r{right:0}
+.float-back{position:absolute;top:14px;left:12px;z-index:5;width:40px;height:40px;border-radius:50%;border:0;background:rgba(0,0,0,.35);color:#fff;display:grid;place-items:center;backdrop-filter:blur(6px)}
+.float-back svg{width:22px;height:22px}
+.d-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px 20px 4px}
+.d-head h1{font-size:26px;margin:0;display:flex;align-items:center;gap:8px;letter-spacing:-.03em}
+.d-head h1 span{font-weight:500}
+.d-meta{margin:2px 0 0;color:var(--muted);font-size:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.d-body{padding:0 20px}
+.d-bio{font-size:15.5px;margin:12px 0 16px}
+.prompt{position:relative;background:var(--soft);border-radius:20px;padding:18px 60px 18px 18px;margin-bottom:10px}
+.prompt .q{margin:0;font-size:13px;font-weight:700;color:var(--muted)}
+.prompt .a{margin:4px 0 0;font-size:19px;font-weight:800;letter-spacing:-.02em;line-height:1.35}
+.prompt-like{position:absolute;right:12px;bottom:12px;width:42px;height:42px;border-radius:50%;border:0;background:#fff;color:var(--brand);box-shadow:0 4px 12px rgba(0,0,0,.08);display:grid;place-items:center}
+.prompt-like svg{width:20px;height:20px}
+.d-sec{margin:22px 0}
+.d-sec h3{font-size:15px;margin:0 0 10px}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.info-grid div{background:var(--soft);border-radius:14px;padding:10px 12px}
+.info-grid small{display:block;color:var(--muted);font-size:12px}
+.info-grid b{font-size:15px}
+.fail-box{background:#fef2f2;border-radius:16px;padding:14px;color:#b91c1c;font-size:14px}
+.fail-box ul{margin:6px 0 0;padding-left:18px}
+.banner-like{margin:14px 20px 0;background:#fff1f3;color:var(--brand);font-weight:700;border-radius:14px;padding:10px 14px;font-size:14px;display:flex;gap:6px;align-items:center}
+.banner-like svg{width:16px;height:16px}
+.d-actions{position:fixed;bottom:0;left:0;right:0;margin:0 auto;width:100%;max-width:440px;display:flex;justify-content:center;align-items:center;gap:16px;padding:16px 20px calc(16px + env(safe-area-inset-bottom));background:linear-gradient(rgba(255,255,255,0),#fff 35%);z-index:45}
+.d-actions .btn{flex:1}
+
+/* match modal */
+.modal{position:fixed;inset:0;z-index:60;display:grid;place-items:center;background:rgba(25,10,16,.68);backdrop-filter:blur(8px);padding:24px;animation:fade .2s}
+.mm{width:100%;max-width:340px;text-align:center;color:#fff}
+.mm .eb{font-size:14px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;opacity:.75}
+.mm h2{font-size:40px;margin:2px 0 26px;background:linear-gradient(135deg,#ff9bb0,#ffc58a);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:900;letter-spacing:-.03em}
+.mm-pics{display:flex;justify-content:center;margin-bottom:30px;position:relative}
+.mm-pics img{width:122px;height:122px;border-radius:50%;object-fit:cover;border:4px solid #fff;box-shadow:0 10px 30px rgba(0,0,0,.3);background:#f3e6ea}
+.mm-pics img:first-child{transform:rotate(-8deg) translateX(14px)}
+.mm-pics img:nth-child(2){transform:rotate(8deg) translateX(-14px)}
+.mm-heart{position:absolute;left:50%;bottom:-16px;transform:translateX(-50%);width:46px;height:46px;border-radius:50%;background:var(--grad);display:grid;place-items:center;box-shadow:0 6px 16px rgba(255,79,110,.5)}
+.mm-heart svg{width:22px;height:22px;color:#fff}
+.mm p{opacity:.92;margin:0 0 24px;font-size:15px}
+.mm .btn{margin-bottom:10px}
+.mm .btn.ghost{background:rgba(255,255,255,.14);color:#fff}
+
+/* my */
+.my-card{display:flex;gap:14px;align-items:center;padding:16px;border-radius:22px;background:var(--soft);cursor:pointer;margin-top:6px}
+.my-card img{width:74px;height:74px;border-radius:50%;object-fit:cover;background:#f3e6ea}
+.my-card h2{margin:0;font-size:20px}
+.my-card p{margin:2px 0 0;color:var(--muted);font-size:13.5px}
+.my-card .edit{margin-left:auto;font-size:13px;font-weight:700;color:var(--brand)}
+.complete{margin:12px 0;padding:14px 16px;border-radius:18px;border:1px solid var(--line)}
+.complete .row{display:flex;justify-content:space-between;font-weight:700;font-size:14px}
+.complete .row b{color:var(--brand)}
+.complete p{margin:0;font-size:12.5px;color:var(--muted)}
+.bar2{height:8px;border-radius:99px;background:var(--line);overflow:hidden;margin:8px 0 6px}
+.bar2 i{display:block;height:100%;background:var(--grad)}
+.my-stats{display:grid;grid-template-columns:repeat(3,1fr);text-align:center;border:1px solid var(--line);border-radius:18px;padding:14px 0;margin-bottom:12px}
+.my-stats b{display:block;font-size:20px}
+.my-stats small{color:var(--muted);font-size:12px}
+.menu{border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.menu button{width:100%;display:flex;align-items:center;gap:12px;padding:14px 16px;border:0;border-bottom:1px solid var(--line);background:#fff;text-align:left}
+.menu button:last-child{border-bottom:0}
+.mi{width:38px;height:38px;border-radius:12px;background:#fff1f3;display:grid;place-items:center;color:var(--brand);flex:none}
+.mi svg{width:19px;height:19px}
+.mt{flex:1}
+.mt b{display:block;font-size:15px}
+.mt small{color:var(--muted);font-size:12.5px}
+.menu .danger b{color:#dc2626}
+.menu .danger .mi{background:#fef2f2;color:#dc2626}
+
+/* logic */
+.lg{border:1px solid var(--line);border-radius:20px;padding:18px;margin-bottom:12px}
+.lg h2{font-size:17px;margin:0 0 4px}
+.lg>p{margin:0;color:var(--muted);font-size:13.5px}
+table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px}
+th,td{text-align:left;padding:9px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:11.5px;color:var(--muted);font-weight:700}
+td.pt{font-weight:900;color:var(--brand);white-space:nowrap}
+td.w{color:var(--muted)}
+.formula{background:var(--soft);border-radius:12px;padding:12px 14px;margin-top:12px;font-size:13.5px}
+.cut{display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.cut img{width:34px;height:34px;border-radius:10px;object-fit:cover;opacity:.7;background:#f3e6ea}
+.tag-bad{font-size:11.5px;color:#dc2626;background:#fef2f2;padding:2px 8px;border-radius:99px;font-weight:700}
+
+.toast{position:fixed;bottom:92px;left:50%;transform:translateX(-50%) translateY(16px);background:#17171c;color:#fff;padding:11px 18px;border-radius:14px;font-size:14px;opacity:0;transition:.25s;pointer-events:none;z-index:80;max-width:calc(100% - 40px);text-align:center}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div id="app" class="phone"></div>
+<div id="layer"></div>
+<div id="modal"></div>
+<div class="toast" id="toast"></div>
+<input type="file" id="file" accept="image/*" hidden>
+
+<script>
+/* ============================================================
+   Pick. — 로직이 보이는 소개팅
+   거르기(절대 안 되는 조건) → 점수(100점) → 이유(자동 설명)
+   ============================================================ */
+
+/* ---------- 상수 ---------- */
+const YEAR=new Date().getFullYear();
+const LOOKS=['귀여운','시크한','훈훈한','단정한','스포티','지적인'];
+const RELIGIONS=['무교','기독교','불교','천주교'];
+const INTERESTS=['게임','운동','여행','영화','독서','요리','카페','음악','등산','사진','애니','맛집','반려동물','전시회','코딩'];
+const EMOJI={'게임':'🎮','운동':'🏋️','여행':'✈️','영화':'🎬','독서':'📚','요리':'🍳','카페':'☕','음악':'🎧','등산':'⛰️','사진':'📷','애니':'🌸','맛집':'🍜','반려동물':'🐶','전시회':'🖼️','코딩':'💻'};
+const REGIONS=['서울 강남','서울 송파','서울 마포','서울 성동','서울 용산','경기 성남','경기 수원','인천','대전','세종','충북 청주','충북 충주','부산','대구','광주'];
+const PROMPTS=['나의 완벽한 주말은','이런 사람과 잘 맞아요','첫 데이트로 가고 싶은 곳','요즘 빠져 있는 것','나를 세 단어로 표현하면','절대 양보 못 하는 것'];
+
+/* ---------- 가상 프로필 30명 ----------
+   [이름, 성별, 나이, 키, 외모, 연봉(만원), 종교, 관심사, 직업, 지역, 소개, 질문1, 답1, 질문2, 답2, 인증] */
+const RAW=[
+ ['서지윤','F',23,162,'귀여운',2400,'무교','게임,카페,애니','대학원생','서울 성동','주말엔 카페에서 닌텐도 하는 게 행복',0,'카페 창가 자리 + 게임 + 디저트',3,'섬 꾸미기 게임',1],
+ ['박하은','F',25,165,'단정한',3600,'기독교','독서,카페,전시회','출판사 에디터','서울 마포','한 달에 책 네 권, 전시 두 번이 목표',2,'독립서점 들렀다가 근처 전시',5,'자기 전 30분 독서',1],
+ ['이수아','F',22,158,'귀여운',1200,'무교','맛집,여행,사진','대학생','경기 수원','맛집 리스트만 300개 저장해둔 사람',2,'웨이팅 있는 노포 맛집',4,'먹고, 찍고, 또 먹고',0],
+ ['최민서','F',27,168,'시크한',5200,'무교','운동,여행,음악','마케터','서울 강남','퇴근 후 러닝, 휴가는 무조건 해외',0,'한강 러닝 후 브런치',1,'같이 운동할 수 있는 사람',1],
+ ['정유나','F',24,160,'훈훈한',3000,'불교','요리,반려동물,영화','간호사','대전','고양이 두 마리랑 살아요',0,'집밥 해 먹고 영화 한 편',5,'우리 집 고양이 사진 자랑',1],
+ ['강예린','F',26,170,'스포티',4100,'무교','운동,등산,맛집','필라테스 강사','서울 송파','같이 운동하고 맛있는 거 먹어요',3,'주말 북한산 등산',1,'체력 좋은 사람!',1],
+ ['윤채원','F',23,163,'지적인',2000,'천주교','독서,코딩,영화','대학원생','대전','논문 쓰다가 영화로 도망가는 중',3,'SF 영화 정주행',4,'호기심, 집중력, 야행성',0],
+ ['한소희','F',28,166,'시크한',6000,'무교','여행,사진,전시회','디자이너','서울 성동','필름카메라 들고 여행 다니는 걸 좋아해요',2,'성수 전시 보고 필름 사진 찍기',1,'취향이 확실한 사람',1],
+ ['오다인','F',21,157,'귀여운',0,'기독교','애니,게임,음악','대학생','충북 청주','애니 OST 들으면서 게임하는 게 취미',3,'새 분기 애니 챙겨보기',4,'덕후, 수다쟁이, 밝음',0],
+ ['임가은','F',24,164,'단정한',3400,'무교','게임,코딩,카페','개발자','경기 성남','사이드 프로젝트도 게임도 진심',0,'카공하다가 저녁엔 듀오 랭크',1,'같이 게임해줄 사람',1],
+ ['송나연','F',30,167,'지적인',7000,'불교','독서,여행,요리','약사','인천','여행지에서 배운 요리 따라 하기',2,'와인바에서 여행 얘기',5,'일요일 아침 늦잠',1],
+ ['배서연','F',25,161,'스포티',3800,'천주교','운동,맛집,반려동물','공무원','세종','강아지 산책 겸 아침 운동',0,'강아지랑 공원 산책 후 맛집',1,'강아지 좋아하는 사람',1],
+ ['김나은','F',24,166,'훈훈한',3200,'무교','여행,카페,음악','승무원','인천','비행 없는 날엔 카페 투어',2,'바다 보이는 카페',3,'플레이리스트 만들기',1],
+ ['문하린','F',26,159,'지적인',4400,'기독교','독서,전시회,음악','연구원','서울 마포','클래식 공연 자주 가요',1,'대화가 깊어지는 사람',4,'차분, 섬세, 꾸준',0],
+ ['신예은','F',23,165,'스포티',1800,'무교','운동,게임,맛집','대학생','충북 청주','헬스 3년차, 게임은 10년차',0,'운동하고 치킨 먹고 게임',3,'클라이밍 입문',0],
+ ['김도윤','M',24,178,'훈훈한',3200,'무교','게임,운동,맛집','연구원','대전','헬스 끝나고 국밥, 그리고 게임',0,'헬스 → 국밥 → 게임 루틴',1,'솔직하고 잘 웃는 사람',1],
+ ['이준호','M',26,182,'시크한',5000,'기독교','운동,여행,사진','영업직','서울 강남','여행 사진 찍어주는 거 자신 있어요',2,'전망 좋은 루프탑',5,'인생샷 찍어주기',1],
+ ['박지훈','M',23,172,'단정한',1500,'무교','게임,애니,코딩','대학생','경기 수원','개발자 지망생, 애니 추천 잘해요',3,'토이 프로젝트 만들기',4,'성실, 덕후, 다정',0],
+ ['최현우','M',28,175,'지적인',6500,'무교','독서,전시회,카페','회계사','서울 마포','조용한 카페에서 책 읽는 주말',0,'브런치 + 서점 + 산책',1,'대화가 잘 통하는 사람',1],
+ ['정민재','M',25,180,'스포티',4200,'불교','등산,운동,요리','소방관','충북 청주','산 정상에서 라면 끓여 먹는 게 낙',0,'새벽 등산 후 사우나',5,'주말 아침 운동',1],
+ ['강태윤','M',22,170,'귀여운',0,'무교','음악,게임,영화','대학생','서울 성동','밴드 동아리 베이스 담당',3,'합주 연습',4,'장난기, 음악, 야식',0],
+ ['윤서준','M',27,176,'훈훈한',4800,'천주교','요리,맛집,여행','셰프','서울 용산','맛있는 거 해주는 게 제 애정표현',2,'내가 요리해주는 홈데이트',1,'잘 먹는 사람 최고',1],
+ ['한재민','M',29,184,'시크한',8000,'무교','여행,음악,사진','변호사','서울 강남','바빠도 여행은 꼭 챙겨요',0,'즉흥 국내 여행',5,'1년에 두 번 해외여행',1],
+ ['오시우','M',24,174,'단정한',3600,'기독교','독서,카페,반려동물','교사','경기 성남','강아지랑 책방 투어 다녀요',0,'강아지 산책 + 독립서점',1,'다정하고 배려 깊은 사람',1],
+ ['임건우','M',31,179,'지적인',9000,'무교','코딩,독서,게임','개발 팀장','경기 성남','일도 게임도 효율 중시',4,'논리, 효율, 게이머',3,'인디게임 만들기',1],
+ ['송우진','M',23,168,'귀여운',2200,'무교','반려동물,카페,영화','바리스타','서울 마포','라떼아트 연습 상대 구해요',2,'내가 일하는 카페',3,'하트 라떼아트 완성하기',0],
+ ['배하준','M',26,177,'스포티',4500,'불교','운동,등산,여행','물리치료사','대전','주말마다 등산, 체력은 자신 있어요',0,'등산하고 막걸리 한 잔',1,'건강하게 사는 사람',1],
+ ['조은호','M',25,181,'훈훈한',3900,'무교','게임,여행,맛집','게임 기획자','경기 성남','게임 만드는 사람, 게임 하는 사람',3,'신작 게임 리뷰',2,'보드게임 카페',1],
+ ['장현수','M',24,173,'단정한',2800,'천주교','음악,카페,독서','피아노 강사','충북 청주','카페에서 재즈 듣는 걸 좋아해요',2,'작은 재즈바',4,'잔잔, 다정, 음악',0],
+ ['서동현','M',27,186,'시크한',5600,'무교','운동,사진,여행','사진작가','인천','필름 냄새 좋아하는 사진가',1,'같이 걷는 걸 좋아하는 사람',3,'노을 사진',1],
+];
+const BASE=RAW.map((r,i)=>({id:'p'+(i+1),name:r[0],gender:r[1],age:r[2],height:r[3],looks:r[4],income:r[5],religion:r[6],
+  interests:r[7].split(','),job:r[8],region:r[9],bio:r[10],prompts:[{q:PROMPTS[r[11]],a:r[12]},{q:PROMPTS[r[13]],a:r[14]}],verified:!!r[15]}));
+
+/* ---------- 내 로직 (설명용) ---------- */
+const FILTERS=[
+  ['성별','원하는 성별이 아니면 제외','애초에 추천 대상이 아님'],
+  ['나이','허용 나이 범위 밖이면 제외','생활 단계 차이는 점수로 메꿀 수 없음'],
+  ['키','허용 키 범위 밖이면 제외','본인이 정한 선은 존중'],
+  ['종교','"절대 안 됨"으로 고른 종교면 제외','결혼·명절까지 이어지는 타협 불가 가치관'],
+  ['연봉','최소 연봉 미만이면 제외 (0이면 안 봄)','기본값 0 — 연봉으로 사람을 자르지 않는 쪽이 기본'],
+  ['관심사','겹치는 관심사가 0개면 제외 (선택)','공통점이 하나도 없으면 첫 대화가 어려움'],
+];
+const RULES=[
+  {label:'관심사',max:35,rule:'겹침 1개 12점 · 2개 24점 · 3개+ 35점',why:'같이 할 거리가 있어야 대화와 데이트가 이어진다. 가장 오래 작용해서 비중이 제일 크다.'},
+  {label:'종교',max:15,rule:'같으면 15점, 다르면 0점',why:'가치관 문제. "절대 안 됨"은 거르기에서 이미 빠졌으니 여기선 같으면 가산만.'},
+  {label:'나이',max:15,rule:'차이 0~2살 15 · 3~4살 8 · 5살+ 3',why:'비슷한 나이일수록 생활 단계와 대화 코드가 맞는다.'},
+  {label:'외모',max:15,rule:'선호 스타일이면 15점 (선호 없음이면 모두 15)',why:'첫인상은 중요하지만 취향일 뿐. 등급이 아닌 "스타일"로 기록해 우열을 만들지 않았다.'},
+  {label:'키',max:10,rule:'이상형 키와 ±3cm 10 · ±7cm 5 · 그 외 0',why:'허용 범위는 거르기에서 처리, 범위 안에선 이상형에 가까울수록 조금 더.'},
+  {label:'연봉',max:10,rule:'(상대 연봉 ÷ 희망 연봉) × 10, 최대 10',why:'고려는 하되 연봉으로 줄 세우지 않도록 가장 낮은 비중 + 상한.'},
+];
+const STEPS=[
+  {key:'account',title:'계정 만들기',sub:'로그인에 쓸 아이디와 비밀번호를 정해주세요'},
+  {key:'basic',title:'기본 정보',sub:'프로필에 보여지는 정보예요'},
+  {key:'about',title:'나에 대해',sub:'상대의 추천 점수에도 쓰여요'},
+  {key:'interests',title:'관심사',sub:'3~5개 골라주세요. 점수가 가장 큰 항목(35점)이에요'},
+  {key:'photos',title:'사진과 소개',sub:'사진이 없으면 일러스트 아바타로 보여요'},
+  {key:'pref',title:'이상형 조건',sub:'① 거르기와 ② 점수에 그대로 쓰여요'},
+];
+
+/* ---------- 유틸 ---------- */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const H=s=>{let h=2166136261;for(const c of String(s)){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0};
+const clone=o=>JSON.parse(JSON.stringify(o));
+const ageOf=x=>x.age??(YEAR-x.birthYear);
+const won=n=>n>0?Number(n).toLocaleString()+'만원':'없음';
+const store={
+  get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}}
+};
+function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('on'),2000)}
+function fmtTime(t){const d=new Date(t),n=new Date();return d.toDateString()===n.toDateString()?d.toTimeString().slice(0,5):`${d.getMonth()+1}/${d.getDate()}`}
+function ago(t){const s=(Date.now()-t)/1000;return s<60?'방금':s<3600?`${Math.floor(s/60)}분 전`:s<86400?`${Math.floor(s/3600)}시간 전`:`${Math.floor(s/86400)}일 전`}
+async function hashPw(pw,salt){
+  try{if(window.crypto&&crypto.subtle){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(salt+':'+pw));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}}catch(e){}
+  let h=5381;for(const c of salt+':'+pw)h=((h<<5)+h+c.charCodeAt(0))>>>0;return 'djb'+h.toString(16);
+}
+
+/* ---------- 아이콘 ---------- */
+const ICON={
+  home:'<path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>',
+  cards:'<rect x="7" y="3" width="13" height="17" rx="2.5"/><path d="M4 7v11.5A2.5 2.5 0 0 0 6.5 21H15"/>',
+  heart:'<path d="M12 20.5s-7.6-4.6-9.3-9.4C1.5 7.8 3.8 4.5 7.2 4.5c2 0 3.6 1.1 4.8 2.8 1.2-1.7 2.8-2.8 4.8-2.8 3.4 0 5.7 3.3 4.5 6.6-1.7 4.8-9.3 9.4-9.3 9.4z"/>',
+  chat:'<path d="M20 12a8 8 0 0 1-11.6 7.1L4 20l1-4.1A8 8 0 1 1 20 12z"/>',
+  user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7z"/>',
+  x:'<path d="M6 6l12 12M18 6 6 18"/>',
+  star:'<path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9z"/>',
+  back:'<path d="M15 5l-7 7 7 7"/>',
+  info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.6v.4"/>',
+  undo:'<path d="M4 9h11a5 5 0 0 1 0 10H8"/><path d="M8 5 4 9l4 4"/>',
+  more:'<circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  check:'<path d="m5 12.5 4.5 4.5L19 7"/>',
+  send:'<path d="M4 12 20 4l-6 16-3-7z"/>',
+  sliders:'<path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/>',
+  logic:'<path d="M4 5h16M4 12h10M4 19h5"/><circle cx="18" cy="16" r="3"/><path d="m20.2 18.2 1.8 1.8"/>',
+  pin:'<path d="M12 21s-6.5-5.7-6.5-11a6.5 6.5 0 0 1 13 0c0 5.3-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/>',
+  edit:'<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m13.5 6.5 4 4"/>',
+  refresh:'<path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/>',
+  out:'<path d="M15 4h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4"/><path d="M10 8l-4 4 4 4M6 12h10"/>',
+  trash:'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',
+};
+const ic=(n,fill)=>`<svg viewBox="0 0 24 24" fill="${fill?'currentColor':'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[n]}</svg>`;
+const vbadge=p=>p.verified?`<span class="vbadge" title="인증된 프로필">${ic('check')}</span>`:'';
+
+/* ---------- 사진 ---------- */
+const PAL=[['#ffc2cf','#ff6b8b'],['#c3dcff','#5b8cff'],['#c7f0d8','#2fb980'],['#ffe1a8','#ff9f43'],['#dccbff','#8b5cf6'],['#b5eef2','#14b8c4']];
+const BG=['ffd5dc','ffdfbf','c0aede','d1d4f9','b6e3f4','c1f4c5'];
+const svgUrl=s=>'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(s);
+function localAvatar(p){const [a,b]=PAL[H(p.id)%PAL.length];
+  return svgUrl(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs><rect width="400" height="500" fill="url(#g)"/><circle cx="200" cy="200" r="72" fill="rgba(255,255,255,.6)"/><path d="M70 500c8-110 62-170 130-170s122 60 130 170z" fill="rgba(255,255,255,.6)"/></svg>`)}
+function themeCard(p,interest,k){const [a,b]=PAL[(H(p.id)+k)%PAL.length];
+  return svgUrl(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs><rect width="400" height="500" fill="url(#g)"/><text x="200" y="230" font-size="120" text-anchor="middle">${EMOJI[interest]||'✨'}</text><text x="200" y="310" font-size="34" font-weight="700" fill="#fff" text-anchor="middle" font-family="sans-serif">${interest}</text></svg>`)}
+function mainPhoto(p){return p.photos&&p.photos.length?p.photos[0]:`https://api.dicebear.com/9.x/lorelei/svg?seed=${encodeURIComponent(p.id+p.name)}&backgroundColor=${BG[H(p.id)%BG.length]}`}
+function photosOf(p){if(p.photos&&p.photos.length)return p.photos;return [mainPhoto(p),themeCard(p,p.interests[0],1),themeCard(p,p.interests[1]||p.interests[0],2)]}
+const pimg=(p,src,cls='')=>`<img class="${cls}" src="${esc(src||mainPhoto(p))}" data-fb="${esc(localAvatar(p))}" onerror="this.onerror=null;this.src=this.dataset.fb" alt="" draggable="false">`;
+function cropImage(file,w=480,h=600){return new Promise((res,rej)=>{const r=new FileReader();r.onerror=rej;r.onload=()=>{const im=new Image();im.onerror=rej;im.onload=()=>{
+  const ratio=w/h;let sw=im.width,sh=im.height;if(sw/sh>ratio)sw=sh*ratio;else sh=sw/ratio;
+  const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(im,(im.width-sw)/2,(im.height-sh)/2,sw,sh,0,0,w,h);
+  res(c.toDataURL('image/jpeg',.8))};im.src=r.result};r.readAsDataURL(file)})}
+
+/* ---------- 상태 ---------- */
+let users=store.get('pk.users',{});
+let session=store.get('pk.session',null);
+for(const u of Object.values(users)){u.likes=u.likes||{};u.passes=u.passes||[];u.matches=u.matches||{};u.chats=u.chats||{};u.seen=u.seen||{}}
+if(session&&!users[session])session=null;
+const V={route:session?'app':'landing',tab:'home',step:0,draft:null,editDraft:null,photoTarget:null,layer:null,lastPass:null,likesSeg:'got',typing:{}};
+const U=()=>users[session];
+const meP=u=>({...u.profile,id:'u:'+u.id});
+function persist(){if(!store.set('pk.users',users))toast('저장 공간이 부족해요. 사진 수를 줄여주세요')}
+const emptyState=()=>({likes:{},passes:[],matches:{},chats:{},seen:{}});
+function defaultPref(g,age=24){const w=g==='F'?'M':'F';return {wantGender:w,ageMin:Math.max(19,age-4),ageMax:age+5,heightMin:w==='F'?150:165,heightMax:w==='F'?175:192,idealHeight:w==='F'?163:178,looksPref:[],blockRel:[],incomeMin:0,incomeWish:3000,requireInterest:true}}
+function newDraft(){return {id:'',pw:'',profile:{name:'',gender:'',birthYear:YEAR-24,height:'',region:'',looks:'',job:'',income:'',religion:'',interests:[],bio:'',prompts:[{q:PROMPTS[0],a:''},{q:PROMPTS[2],a:''}],photos:[]},pref:defaultPref('M')}}
+
+function byId(id){
+  if(!id)return null;
+  if(id.startsWith('u:')){const x=users[id.slice(2)];return x?{...x.profile,id,age:ageOf(x.profile),isUser:true,verified:false}:null}
+  return BASE.find(p=>p.id===id)||null;
+}
+function pool(u){return [...BASE,...Object.values(users).filter(x=>x.id!==u.id).map(x=>byId('u:'+x.id))]}
+const isOnline=p=>!p.isUser&&H(new Date().toDateString()+p.id)%3===0;
+
+/* ============================================================
+   ① 거르기  ② 점수  ③ 이유
+   ============================================================ */
+function evaluate(p,u){
+  const pr=u.pref,me=u.profile,myAge=ageOf(me),fails=[];
+  if(pr.wantGender!=='any'&&p.gender!==pr.wantGender)fails.push('원하는 성별 아님');
+  if(p.age<pr.ageMin||p.age>pr.ageMax)fails.push(`나이 ${p.age}세 (허용 ${pr.ageMin}~${pr.ageMax})`);
+  if(p.height<pr.heightMin||p.height>pr.heightMax)fails.push(`키 ${p.height}cm (허용 ${pr.heightMin}~${pr.heightMax})`);
+  if(pr.blockRel.includes(p.religion))fails.push(`종교 ${p.religion} (절대 안 됨)`);
+  if(pr.incomeMin>0&&p.income<pr.incomeMin)fails.push(`연봉 ${won(p.income)} (최소 ${won(pr.incomeMin)})`);
+  const common=p.interests.filter(i=>me.interests.includes(i));
+  if(pr.requireInterest&&!common.length)fails.push('겹치는 관심사 0개');
+  if(fails.length)return {pass:false,fails,common};
+
+  const items=[];
+  items.push({label:'관심사',max:35,pts:[0,12,24,35][Math.min(3,common.length)],
+    detail:common.length?`${common.join('·')} — ${common.length}개 겹침`:'겹치는 관심사 없음',short:`관심사 ${common.length}개 일치(${common.join('·')})`});
+  const sameRel=p.religion===me.religion;
+  items.push({label:'종교',max:15,pts:sameRel?15:0,detail:sameRel?`둘 다 ${p.religion}`:`나 ${me.religion} / 상대 ${p.religion}`,short:`같은 종교(${p.religion})`});
+  const ad=Math.abs(p.age-myAge);
+  items.push({label:'나이',max:15,pts:ad<=2?15:ad<=4?8:3,detail:`나이 차 ${ad}살`,short:ad===0?'동갑':`나이 차 ${ad}살`});
+  const noPref=!pr.looksPref.length,lp=noPref||pr.looksPref.includes(p.looks)?15:0;
+  items.push({label:'외모',max:15,pts:lp,detail:noPref?`선호 없음 (${p.looks})`:lp?`선호 스타일 '${p.looks}'`:`'${p.looks}' — 선호 목록에 없음`,short:`선호 스타일(${p.looks})`});
+  const hd=Math.abs(p.height-pr.idealHeight);
+  items.push({label:'키',max:10,pts:hd<=3?10:hd<=7?5:0,detail:`${p.height}cm — 이상형 ${pr.idealHeight}cm와 ${hd}cm 차이`,short:`이상형 키와 ${hd}cm 차이`});
+  const icp=pr.incomeWish>0?Math.min(10,Math.round(10*p.income/pr.incomeWish)):10;
+  items.push({label:'연봉',max:10,pts:icp,detail:`${won(p.income)} / 희망 ${won(pr.incomeWish)}`,short:icp>=10?'희망 연봉 충족':`연봉 ${won(p.income)}`});
+  return {pass:true,items,common,total:items.reduce((s,i)=>s+i.pts,0)};
+}
+function rank(u){
+  const res=pool(u).map(p=>({p,...evaluate(p,u)}));
+  const myAge=ageOf(u.profile);
+  const passed=res.filter(r=>r.pass).sort((a,b)=>b.total-a.total||b.common.length-a.common.length||Math.abs(a.p.age-myAge)-Math.abs(b.p.age-myAge));
+  return {passed,failed:res.filter(r=>!r.pass)};
+}
+function reasonText(top,second){
+  const good=top.items.filter(i=>i.pts>0).sort((a,b)=>b.pts/b.max-a.pts/a.max||b.pts-a.pts).slice(0,3).map(i=>i.short);
+  let s=`<b>${esc(top.p.name)}</b>님은 ${esc(good.join(', '))} 덕분에 <b>${top.total}점</b>으로 1위예요.`;
+  if(second){
+    const diff=top.total-second.total;
+    if(!diff)s+=` 2위 ${esc(second.p.name)}님과 동점이지만 동점 규칙(겹치는 관심사 수 → 나이 차)에 따라 앞섰어요.`;
+    else{let best=null;top.items.forEach((it,k)=>{const d=it.pts-second.items[k].pts;if(!best||d>best.d)best={d,label:it.label}});
+      s+=` 2위 ${esc(second.p.name)}님보다 ${diff}점 높고, 가장 크게 앞선 항목은 '${best.label}'(+${best.d}점)이에요.`}
+  }
+  const miss=top.items.filter(i=>i.pts<i.max).map(i=>`${i.label} ${i.pts}/${i.max}`);
+  return s+(miss.length?` 아쉬운 점: ${esc(miss.join(', '))}.`:' 모든 항목 만점!');
+}
+/* 상대 입장에서 나를 좋아할지 (가상 프로필용 간단 점수) */
+function theyLike(p,u){
+  if(p.isUser){const o=users[p.id.slice(2)];return o&&o.likes['u:'+u.id]?100:0}
+  const me=u.profile;if(me.gender!==(p.gender==='F'?'M':'F'))return 0;
+  const ov=p.interests.filter(i=>me.interests.includes(i)).length,ad=Math.abs(p.age-ageOf(me));
+  return Math.min(45,ov*15)+(ad<=3?20:ad<=5?10:0)+(p.religion===me.religion?10:0)+H(u.id+p.id)%30;
+}
+const receivedLikes=u=>pool(u).filter(p=>!u.matches[p.id]&&!u.likes[p.id]&&!u.passes.includes(p.id)&&theyLike(p,u)>=65);
+function unreadCount(u){return Object.keys(u.matches).filter(id=>{const m=u.chats[id]||[];return byId(id)&&(!m.length||(m.length>(u.seen[id]||0)&&m[m.length-1].from==='them'))}).length}
+
+/* ============================================================
+   화면
+   ============================================================ */
+function render(){
+  const app=$('#app');
+  app.innerHTML=V.route==='landing'?landingView():V.route==='login'?loginView():V.route==='signup'?signupView():V.route==='welcome'?welcomeView():appView();
+  after();
+}
+function after(){tick();if(V.route==='app'&&V.tab==='discover')bindSwipe()}
+
+/* ----- 시작 / 로그인 ----- */
+function landingView(){
+  const pics=[2,9,16,19,3,22].map(i=>BASE[i]);
+  return `<div class="landing">
+    <div class="collage">${pics.map(p=>pimg(p)).join('')}</div>
+    <div class="land-body">
+      <div class="logo big">Pick.</div>
+      <h1>왜 이 사람인지<br>보여주는 소개팅</h1>
+      <p>거르기 → 점수 → 이유. 추천 로직을 숨기지 않아요.</p>
+      <button class="btn primary block" data-act="go-signup">시작하기</button>
+      <button class="btn ghost block" data-act="go-login">이미 계정이 있어요</button>
+      <button class="link" data-act="demo">체험 계정으로 둘러보기</button>
+      <p class="fine center">과제용 데모 앱이에요. 계정과 사진은 이 브라우저에만 저장돼요.</p>
+    </div></div>`;
+}
+function loginView(){
+  return `<div class="topbar plain"><button class="icon-btn" data-act="go-landing" aria-label="뒤로">${ic('back')}</button></div>
+  <div class="su-title"><h1>다시 만나서 반가워요</h1><p>아이디와 비밀번호로 로그인하세요</p></div>
+  <form class="pad" data-form="login" novalidate>
+    ${fld('아이디',`<input name="id" autocomplete="username" autocapitalize="off">`)}
+    ${fld('비밀번호',`<input type="password" name="pw" autocomplete="current-password">`)}
+    <button class="btn primary block">로그인</button>
+    <p class="fine center">계정이 없나요? <button type="button" class="link" data-act="go-signup">회원가입</button></p>
+  </form>`;
+}
+
+/* ----- 폼 조각 ----- */
+const fld=(label,inner)=>`<label class="fld"><span>${label}</span>${inner}</label>`;
+const grp=(label,inner,right='')=>`<div class="blk"><div class="group-h"><span>${label}</span>${right}</div>${inner}</div>`;
+const numIn=(name,val,ph='')=>`<input type="number" inputmode="numeric" name="${name}" value="${esc(val)}" placeholder="${ph}">`;
+const selectF=(name,opts,val,ph)=>`<select name="${name}">${ph?`<option value="">${ph}</option>`:''}${opts.map(o=>{const [v,l]=Array.isArray(o)?o:[o,o];return `<option value="${esc(v)}" ${String(v)===String(val)?'selected':''}>${esc(l)}</option>`}).join('')}</select>`;
+const radioChips=(name,opts,val)=>`<div class="chips-select">${opts.map(o=>`<label class="copt"><input type="radio" name="${name}" value="${esc(o)}" ${o===val?'checked':''}><span>${esc(o)}</span></label>`).join('')}</div>`;
+const checkChips=(name,opts,vals,emoji)=>`<div class="chips-select">${opts.map(o=>`<label class="copt"><input type="checkbox" name="${name}" value="${esc(o)}" ${vals.includes(o)?'checked':''}><span>${emoji?EMOJI[o]+' ':''}${esc(o)}</span></label>`).join('')}</div>`;
+
+function secAccount(d){
+  return fld('아이디',`<input name="id" value="${esc(d.id)}" placeholder="영문·숫자 4~16자" autocomplete="username" autocapitalize="off">`)
+   +fld('비밀번호',`<input type="password" name="pw" placeholder="8자 이상" autocomplete="new-password">`)
+   +fld('비밀번호 확인',`<input type="password" name="pw2" autocomplete="new-password">`)
+   +`<label class="check-row"><input type="checkbox" name="agree1"><span>(필수) 만 19세 이상입니다</span></label>
+     <label class="check-row"><input type="checkbox" name="agree2"><span>(필수) 이용약관 및 개인정보 처리에 동의합니다</span></label>
+     <label class="check-row"><input type="checkbox" name="agree3"><span class="muted">(선택) 새 매칭 알림 받기</span></label>
+     <p class="fine">데모라서 계정은 이 브라우저에만 저장되고, 비밀번호는 SHA-256 해시로 바꿔 저장해요.</p>`;
+}
+function secBasic(p){
+  const years=[];for(let y=YEAR-19;y>=YEAR-45;y--)years.push([y,`${y}년 (${YEAR-y}세)`]);
+  return grp('성별',`<div class="gender-pick">${[['M','🙋‍♂️ 남성'],['F','🙋‍♀️ 여성']].map(([v,l])=>`<label class="copt"><input type="radio" name="gender" value="${v}" ${p.gender===v?'checked':''}><span>${l}</span></label>`).join('')}</div>`)
+   +fld('닉네임',`<input name="name" value="${esc(p.name)}" maxlength="10" placeholder="상대에게 보여질 이름">`)
+   +`<div class="grid2">${fld('출생연도',selectF('birthYear',years,p.birthYear))}${fld('키 (cm)',numIn('height',p.height,'175'))}</div>`
+   +fld('지역',selectF('region',REGIONS,p.region,'선택해주세요'));
+}
+function secAbout(p){
+  return grp('외모 스타일',radioChips('looks',LOOKS,p.looks))+`<p class="hint">외모는 등급이 아니라 "스타일"로만 표시돼요.</p>`
+   +fld('직업',`<input name="job" value="${esc(p.job)}" maxlength="15" placeholder="예) 대학생, 개발자">`)
+   +fld('연봉 (만원 · 학생이면 0)',numIn('income',p.income,'3000'))
+   +grp('종교',radioChips('religion',RELIGIONS,p.religion));
+}
+function secInterests(p){return grp('관심사',checkChips('interests',INTERESTS,p.interests,true),`<b><span id="int-count">${p.interests.length}</span> / 5</b>`)}
+function photoGridInner(ph){
+  return [0,1,2].map(i=>ph[i]?`<div class="pslot"><img src="${esc(ph[i])}" alt=""><button type="button" class="del" data-act="photo-del" data-i="${i}" aria-label="사진 삭제">${ic('x')}</button>${i===0?'<span class="main-tag">대표</span>':''}</div>`
+    :i===ph.length?`<div class="pslot"><button type="button" class="add" data-act="photo-add" aria-label="사진 추가">${ic('plus')}</button></div>`:`<div class="pslot"></div>`).join('');
+}
+function secPhotos(p){
+  return grp('사진 (최대 3장)',`<div class="photo-grid" id="photo-grid">${photoGridInner(p.photos)}</div>`)
+   +fld('한 줄 소개',`<textarea name="bio" maxlength="60" placeholder="예) 주말엔 카페에서 게임해요">${esc(p.bio)}</textarea>`)
+   +`<div class="group-h"><span>질문 카드 — 대화의 시작이 돼요</span></div>`
+   +[0,1].map(i=>`<div class="prompt-edit">${selectF('q'+i,PROMPTS,p.prompts[i]?.q||PROMPTS[i])}<textarea name="a${i}" maxlength="40" placeholder="답변 (선택)">${esc(p.prompts[i]?.a||'')}</textarea></div>`).join('');
+}
+function secPref(pr){
+  return `<h3 class="sub-h">① 거르기 <span class="muted" style="font-size:13px;font-weight:600">하나라도 걸리면 제외</span></h3>`
+   +fld('원하는 상대',selectF('wantGender',[['F','여성'],['M','남성'],['any','상관없음']],pr.wantGender))
+   +`<div class="grid2">${fld('최소 나이',numIn('ageMin',pr.ageMin))}${fld('최대 나이',numIn('ageMax',pr.ageMax))}</div>`
+   +`<div class="grid2">${fld('최소 키',numIn('heightMin',pr.heightMin))}${fld('최대 키',numIn('heightMax',pr.heightMax))}</div>`
+   +grp('절대 안 되는 종교',checkChips('blockRel',RELIGIONS,pr.blockRel))
+   +fld('최소 연봉 (만원 · 0이면 안 봄)',numIn('incomeMin',pr.incomeMin))
+   +`<label class="check-row" style="margin-bottom:22px"><input type="checkbox" name="requireInterest" ${pr.requireInterest?'checked':''}><span>겹치는 관심사가 하나도 없으면 제외</span></label>`
+   +`<h3 class="sub-h">② 점수 <span class="muted" style="font-size:13px;font-weight:600">통과한 사람을 채점할 때</span></h3>`
+   +`<div class="grid2">${fld('이상형 키',numIn('idealHeight',pr.idealHeight))}${fld('희망 연봉 (만원)',numIn('incomeWish',pr.incomeWish))}</div>`
+   +grp('선호 외모 스타일 (안 고르면 상관없음)',checkChips('looksPref',LOOKS,pr.looksPref));
+}
+function collect(sec,fd,d){
+  const p=d.profile,N=k=>Number(fd.get(k));
+  switch(sec){
+    case 'account':{const id=(fd.get('id')||'').trim(),pw=fd.get('pw')||'';
+      if(!/^[a-zA-Z0-9_]{4,16}$/.test(id))return '아이디는 영문·숫자 4~16자예요';
+      if(users[id])return '이미 사용 중인 아이디예요';
+      if(pw.length<8)return '비밀번호는 8자 이상이에요';
+      if(pw!==fd.get('pw2'))return '비밀번호가 서로 달라요';
+      if(!fd.get('agree1')||!fd.get('agree2'))return '필수 항목에 동의해주세요';
+      d.id=id;d.pw=pw;return null}
+    case 'basic':{const name=(fd.get('name')||'').trim();
+      if(!fd.get('gender'))return '성별을 선택해주세요';
+      if(!name)return '닉네임을 입력해주세요';
+      const h=N('height');if(!(h>=140&&h<=210))return '키를 확인해주세요 (140~210)';
+      if(!fd.get('region'))return '지역을 선택해주세요';
+      Object.assign(p,{name,gender:fd.get('gender'),birthYear:N('birthYear'),height:h,region:fd.get('region')});return null}
+    case 'about':{
+      if(!fd.get('looks'))return '외모 스타일을 골라주세요';
+      if(!fd.get('religion'))return '종교를 골라주세요';
+      if(fd.get('income')===''||N('income')<0)return '연봉을 입력해주세요 (학생이면 0)';
+      Object.assign(p,{looks:fd.get('looks'),religion:fd.get('religion'),job:(fd.get('job')||'').trim(),income:N('income')});return null}
+    case 'interests':{const it=fd.getAll('interests');
+      if(it.length<3)return '관심사를 3개 이상 골라주세요';if(it.length>5)return '관심사는 5개까지예요';
+      p.interests=it;return null}
+    case 'photos':{const bio=(fd.get('bio')||'').trim();if(!bio)return '한 줄 소개를 써주세요';
+      p.bio=bio;p.prompts=[0,1].map(i=>({q:fd.get('q'+i),a:(fd.get('a'+i)||'').trim()}));return null}
+    case 'pref':{const pr={wantGender:fd.get('wantGender'),ageMin:N('ageMin'),ageMax:N('ageMax'),heightMin:N('heightMin'),heightMax:N('heightMax'),
+        idealHeight:N('idealHeight'),looksPref:fd.getAll('looksPref'),blockRel:fd.getAll('blockRel'),incomeMin:N('incomeMin')||0,incomeWish:N('incomeWish')||0,
+        requireInterest:fd.get('requireInterest')==='on'};
+      if(!pr.ageMin||!pr.ageMax||pr.ageMin>pr.ageMax)return '나이 범위를 확인해주세요';
+      if(!pr.heightMin||!pr.heightMax||pr.heightMin>pr.heightMax)return '키 범위를 확인해주세요';
+      if(!pr.idealHeight)return '이상형 키를 입력해주세요';
+      if(pr.blockRel.length===RELIGIONS.length)return '모든 종교를 막으면 아무도 추천되지 않아요';
+      d.pref=pr;return null}
+  }
+}
+
+/* ----- 회원가입 ----- */
+function signupView(){
+  const s=STEPS[V.step],d=V.draft;
+  const body={account:()=>secAccount(d),basic:()=>secBasic(d.profile),about:()=>secAbout(d.profile),interests:()=>secInterests(d.profile),photos:()=>secPhotos(d.profile),pref:()=>secPref(d.pref)}[s.key]();
+  return `<div class="su-top"><div class="topbar plain"><button class="icon-btn" data-act="step-back" aria-label="뒤로">${ic('back')}</button><span class="su-step">${V.step+1} / ${STEPS.length}</span><span style="width:40px"></span></div>
+    <div class="progress"><i style="width:${(V.step+1)/STEPS.length*100}%"></i></div></div>
+    <div class="su-title"><h1>${s.title}</h1><p>${s.sub}</p></div>
+    <form class="pad" data-form="step" novalidate>${body}<div class="su-foot"><button class="btn primary block">${V.step===STEPS.length-1?'가입 완료':'다음'}</button></div></form>`;
+}
+async function finishSignup(){
+  const d=V.draft,salt=Math.random().toString(36).slice(2,10);
+  users[d.id]={id:d.id,salt,pwHash:await hashPw(d.pw,salt),createdAt:Date.now(),profile:d.profile,pref:d.pref,...emptyState()};
+  persist();session=d.id;store.set('pk.session',session);V.draft=null;V.route='welcome';render();
+}
+function welcomeView(){
+  const u=U(),{passed}=rank(u);
+  return `<div class="welcome"><div class="big-check">${ic('check')}</div><h1>가입 완료!</h1>
+    <p>${esc(u.profile.name)}님의 조건으로 ${pool(u).length}명 중 <b>${passed.length}명</b>이 거르기를 통과했어요.<br>오늘의 1위와 그 이유를 확인해보세요.</p>
+    <button class="btn primary block" data-act="tab" data-tab="home">오늘의 추천 보기</button></div>`;
+}
+async function demoLogin(){
+  if(!users.demo){
+    users.demo={id:'demo',salt:'demo',pwHash:await hashPw('demo1234','demo'),createdAt:Date.now(),
+      profile:{name:'체험유저',gender:'M',birthYear:YEAR-24,height:175,region:'서울 마포',looks:'훈훈한',job:'대학생',income:3000,religion:'무교',
+        interests:['게임','운동','여행','카페'],bio:'과제하다 쉬는 시간엔 게임',prompts:[{q:PROMPTS[0],a:'늦잠 자고 PC방'},{q:PROMPTS[2],a:'보드게임 카페'}],photos:[]},
+      pref:{...defaultPref('M'),ageMin:21,ageMax:28,heightMin:155,heightMax:172,idealHeight:163,looksPref:['귀여운','단정한']},...emptyState()};
+    persist();
+  }
+  session='demo';store.set('pk.session',session);V.route='app';V.tab='home';render();toast('체험 계정으로 로그인했어요 (demo / demo1234)');
+}
+
+/* ----- 앱 셸 ----- */
+function appView(){
+  const u=U(),t=V.tab;
+  const views={home:homeView,discover:discoverView,likes:likesView,chat:chatListView,my:myView};
+  return topbar()+`<main class="content ${t}">${views[t](u)}</main>`+tabbar(u);
+}
+function topbar(){
+  const title={home:'',discover:'',likes:'좋아요',chat:'채팅',my:'마이'}[V.tab];
+  return `<header class="topbar">${title?`<span class="tb-title" style="padding-left:0">${title}</span>`:`<div class="logo">Pick.</div><span class="tb-title"></span>`}
+    <button class="icon-btn" data-act="logic" aria-label="내 로직" title="내 로직">${ic('logic')}</button>
+    <button class="icon-btn" data-act="pref" aria-label="이상형 조건" title="이상형 조건">${ic('sliders')}</button></header>`;
+}
+function tabbar(u){
+  const recv=receivedLikes(u).length,unread=unreadCount(u);
+  const T=[['home','홈','home'],['discover','탐색','cards'],['likes','좋아요','heart'],['chat','채팅','chat'],['my','마이','user']];
+  return `<nav class="tabbar">${T.map(([k,l,i])=>`<button class="${V.tab===k?'on':''}" data-act="tab" data-tab="${k}">${ic(i,V.tab===k&&k!=='discover')}<span>${l}</span>${k==='likes'&&recv?`<em class="dot-badge">${recv}</em>`:''}${k==='chat'&&unread?`<em class="dot-badge">${unread}</em>`:''}</button>`).join('')}</nav>`;
+}
+function updateTabbar(){const tb=$('#app .tabbar');if(tb&&U())tb.outerHTML=tabbar(U())}
+
+function breakdown(r){
+  return `<div class="bd">${r.items.map(i=>`<div class="bd-row"><span class="lbl">${i.label}</span><div class="bar"><i style="width:${i.pts/i.max*100}%"></i></div><span class="pts">${i.pts}<small>/${i.max}</small></span><span class="det">${esc(i.detail)}</span></div>`).join('')}</div>`;
+}
+const interestChips=(p,u,n)=>`<div class="chips">${p.interests.slice(0,n||9).map(i=>`<span class="chip ${u.profile.interests.includes(i)?'hit':''}">${EMOJI[i]||''} ${esc(i)}</span>`).join('')}</div>`;
+function actionFor(u,id,big){
+  if(u.matches[id])return `<button class="btn primary ${big?'block':''}" data-act="open-chat" data-id="${id}">${ic('chat')} 메시지 보내기</button>`;
+  if(u.likes[id])return `<button class="btn ${big?'block':''}" disabled>좋아요 보냄 · 응답 대기</button>`;
+  return `<button class="btn primary ${big?'block':''}" data-act="like" data-id="${id}">${ic('heart',1)} 좋아요</button>`;
+}
+
+/* ----- 홈: 오늘의 추천 ----- */
+function homeView(u){
+  const {passed}=rank(u),n=new Date();
+  const head=`<p class="eyebrow">${n.getMonth()+1}월 ${n.getDate()}일 · 오늘의 추천</p><h2 class="home-h">${esc(u.profile.name)}님과 가장 잘 맞는 사람</h2>
+    <div class="funnel">전체 <b>${pool(u).length}명</b> → 거르기 통과 <b>${passed.length}명</b> → 100점 만점 채점</div>`;
+  if(!passed.length)return head+`<div class="empty"><div class="big">🔍</div><h3>조건을 통과한 사람이 없어요</h3><p>거르기 조건이 너무 빡빡한지 확인해보세요.</p><button class="btn primary" data-act="pref">조건 바꾸기</button></div>`;
+  const top=passed[0],p=top.p;
+  return head+`
+    <article class="pick-card" data-act="detail" data-id="${p.id}">
+      ${pimg(p)}<div class="shade"></div>
+      <span class="top-badge">👑 오늘의 1위</span>
+      <div class="score-badge"><b>${top.total}</b><small>/ 100점</small></div>
+      <div class="ov"><h2>${esc(p.name)} <span>${p.age}</span> ${vbadge(p)}</h2><p>${ic('pin')} ${esc(p.region||'')} · ${esc(p.job||'')}</p></div>
+    </article>
+    <section class="why">
+      <h3>💡 왜 이 사람이 1위인가?</h3>
+      <p>${reasonText(top,passed[1])}</p>
+      ${breakdown(top)}
+      <div class="row-btns"><button class="btn" data-act="detail" data-id="${p.id}">프로필 보기</button>${actionFor(u,p.id)}</div>
+    </section>
+    ${passed.length>1?`<div class="sec-h"><h3>오늘의 소개</h3><span>다음 소개까지 <b id="countdown"></b></span></div>
+    <div class="hscroll">${passed.slice(1,8).map((r,i)=>`<div class="mini" data-act="detail" data-id="${r.p.id}"><div class="ph">${pimg(r.p)}<span class="pill">${i+2}위 · ${r.total}점</span></div><b>${esc(r.p.name)}, ${r.p.age}</b><small>${esc(r.common.map(c=>EMOJI[c]+c).join(' ')||r.p.region)}</small></div>`).join('')}</div>`:''}
+    <button class="logic-banner" data-act="logic"><span class="ico">${ic('logic')}</span><span><b>내 추천 로직 보기</b><small>거르기 6개 · 점수 6항목 · 이유 자동 생성 · 제외된 사람과 이유</small></span></button>`;
+}
+function tick(){const el=$('#countdown');if(!el)return;const n=new Date(),t=new Date(n);t.setHours(12,0,0,0);if(t<=n)t.setDate(t.getDate()+1);
+  const s=Math.floor((t-n)/1000);el.textContent=[s/3600,s%3600/60,s%60].map(x=>String(Math.floor(x)).padStart(2,'0')).join(':')}
+setInterval(tick,1000);
+
+/* ----- 탐색: 스와이프 ----- */
+function deckQueue(u){return rank(u).passed.filter(r=>!u.likes[r.p.id]&&!u.passes.includes(r.p.id)&&!u.matches[r.p.id])}
+function swipeCard(r,u,top){
+  const p=r.p,ph=photosOf(p);
+  const best=r.items.filter(i=>i.pts===i.max).map(i=>i.label);
+  return `<div class="scard ${top?'top':'under'}" data-id="${p.id}">
+    <div class="photos">${ph.map((s,i)=>pimg(p,s,i?'':'on')).join('')}</div>
+    <div class="pbars">${ph.map((_,i)=>`<i class="${i?'':'on'}"></i>`).join('')}</div>
+    <div class="shade"></div>
+    <div class="stamp like">LIKE</div><div class="stamp nope">NOPE</div><div class="stamp super">SUPER</div>
+    <div class="ov">
+      <span class="score-pill">${ic('heart',1).replace('<svg','<svg width="13" height="13"')} ${r.total}점 매칭</span>
+      <h2>${esc(p.name)} <span>${p.age}</span> ${vbadge(p)}</h2>
+      <p>${isOnline(p)?'<span class="online" style="color:#86efac">접속 중</span> · ':''}${ic('pin')} ${esc(p.region||'')} · ${esc(p.job||'')}</p>
+      <div style="margin-top:8px">${interestChips(p,u)}</div>
+      <p class="sc-why">${best.length?`✓ 만점 항목: ${best.join(', ')}`:''}</p>
+    </div></div>`;
+}
+function discoverView(u){
+  const q=deckQueue(u);
+  if(!q.length)return `<div class="empty"><div class="big">🌙</div><h3>오늘 추천을 모두 봤어요</h3><p>패스한 사람을 다시 보거나 조건을 넓혀보세요.</p>
+    <button class="btn primary" data-act="reset-pass">${ic('refresh')} 다시 보기</button><button class="btn" data-act="pref">조건 바꾸기</button></div>`;
+  return `<div class="deck">${q.slice(0,2).reverse().map(r=>swipeCard(r,u,r===q[0])).join('')}</div>
+    <div class="actions">
+      <button class="act sm undo" data-act="undo" aria-label="되돌리기" ${V.lastPass?'':'disabled'}>${ic('undo')}</button>
+      <button class="act nope" data-act="sw-pass" aria-label="패스">${ic('x')}</button>
+      <button class="act super" data-act="sw-super" aria-label="슈퍼 좋아요">${ic('star',1)}</button>
+      <button class="act like" data-act="sw-like" aria-label="좋아요">${ic('heart',1)}</button>
+      <button class="act sm info" data-act="sw-info" aria-label="자세히">${ic('info')}</button>
+    </div>
+    <p class="deck-hint">점수 높은 순 · 남은 카드 ${q.length}장 · 사진 좌우 탭 / 아래쪽 탭하면 상세</p>`;
+}
+function bindSwipe(){
+  const card=$('.scard.top');if(!card)return;
+  let sx=0,sy=0,dx=0,dy=0,down=false;
+  const st=n=>card.querySelector('.stamp.'+n);
+  card.addEventListener('pointerdown',e=>{down=true;sx=e.clientX;sy=e.clientY;dx=dy=0;card.setPointerCapture(e.pointerId);card.style.transition='none'});
+  card.addEventListener('pointermove',e=>{if(!down)return;dx=e.clientX-sx;dy=e.clientY-sy;
+    card.style.transform=`translate(${dx}px,${dy}px) rotate(${dx/18}deg)`;
+    st('like').style.opacity=Math.max(0,Math.min(1,dx/90));st('nope').style.opacity=Math.max(0,Math.min(1,-dx/90));
+    st('super').style.opacity=Math.abs(dx)<60?Math.max(0,Math.min(1,-dy/120)):0});
+  const end=e=>{if(!down)return;down=false;card.style.transition='';
+    if(Math.abs(dx)<6&&Math.abs(dy)<6){card.style.transform='';const r=card.getBoundingClientRect();
+      if(e.clientY-r.top>r.height*.62)openLayer('detail',card.dataset.id);else photoNav(card,e.clientX-r.left<r.width/2?-1:1);return}
+    if(dx>110)return fly(card,1);if(dx<-110)return fly(card,-1);if(dy<-150&&Math.abs(dx)<80)return fly(card,0,true);
+    card.style.transform='';card.querySelectorAll('.stamp').forEach(s=>s.style.opacity=0)};
+  card.addEventListener('pointerup',end);card.addEventListener('pointercancel',end);
+}
+function fly(card,dir,sup){
+  if(!card||card.dataset.flying)return;card.dataset.flying=1;const id=card.dataset.id;
+  card.querySelector(sup?'.stamp.super':dir>0?'.stamp.like':'.stamp.nope').style.opacity=1;
+  card.style.transition='transform .32s ease';
+  card.style.transform=sup?'translate(0,-130%)':`translate(${dir*150}%,${dir?20:0}px) rotate(${dir*24}deg)`;
+  setTimeout(()=>{dir<0?pass(id):like(id,{super:!!sup})},260);
+}
+function photoNav(root,delta){
+  const imgs=root.querySelectorAll('.photos img'),bars=root.querySelectorAll('.pbars i');
+  let i=[...imgs].findIndex(x=>x.classList.contains('on'));i=Math.max(0,Math.min(imgs.length-1,i+delta));
+  imgs.forEach((x,k)=>x.classList.toggle('on',k===i));bars.forEach((x,k)=>x.classList.toggle('on',k===i));
+}
+
+/* ----- 좋아요 / 패스 / 매칭 ----- */
+function like(id,opt={}){
+  const u=U(),p=byId(id);if(!p||u.matches[id])return;
+  u.likes[id]={at:Date.now(),super:!!opt.super,comment:opt.comment||''};
+  u.passes=u.passes.filter(x=>x!==id);
+  const s=theyLike(p,u),matched=s>=60||(opt.super&&s>=45);
+  if(V.layer&&V.layer.type==='detail'){V.layer=null;renderLayer()}
+  if(!matched){persist();render();return toast(`${p.name}님에게 ${opt.super?'슈퍼 ':''}좋아요를 보냈어요${opt.comment?' 💬':''}`)}
+  u.matches[id]={at:Date.now()};u.chats[id]=u.chats[id]||[];
+  if(opt.comment)u.chats[id].push({from:'me',text:opt.comment,t:Date.now()});
+  if(p.isUser){const o=users[id.slice(2)],k='u:'+u.id;o.matches[k]={at:Date.now()};o.chats[k]=o.chats[k]||[];if(opt.comment)o.chats[k].push({from:'them',text:opt.comment,t:Date.now()})}
+  u.seen[id]=u.chats[id].length;
+  persist();render();showMatch(p);
+  if(!p.isUser){
+    if(opt.comment)scheduleReply(id,opt.comment);
+    else if(s>=72)setTimeout(()=>{const m=u.chats[id];if(m&&!m.length&&U()===u){m.push({from:'them',text:greet(p,u),t:Date.now()});persist();refresh(id)}},3500);
+  }
+}
+function pass(id){
+  const u=U();if(!u.passes.includes(id))u.passes.push(id);V.lastPass=id;persist();
+  if(V.layer&&V.layer.type==='detail'){V.layer=null;renderLayer()}render();
+}
+function showMatch(p){
+  const u=U(),r=evaluate(p,u);
+  $('#modal').innerHTML=`<div class="modal"><div class="mm"><div class="eb">It's a Match!</div><h2>매칭 성공</h2>
+    <div class="mm-pics">${pimg(meP(u))}${pimg(p)}<span class="mm-heart">${ic('heart',1)}</span></div>
+    <p>${esc(p.name)}님도 ${esc(u.profile.name)}님을 좋아해요${r.pass?`<br>매칭 점수 <b>${r.total}점</b>`:''}</p>
+    <button class="btn primary block" data-act="open-chat" data-id="${p.id}">${ic('chat')} 메시지 보내기</button>
+    <button class="btn ghost block" data-act="close-modal">계속 둘러보기</button></div></div>`;
+}
+const closeModal=()=>{$('#modal').innerHTML=''};
+
+/* ----- 좋아요 탭 ----- */
+function likesView(u){
+  const got=receivedLikes(u),sent=Object.keys(u.likes).filter(id=>!u.matches[id]).map(byId).filter(Boolean);
+  const seg=`<div class="seg"><button class="${V.likesSeg==='got'?'on':''}" data-act="likes-seg" data-seg="got">받은 좋아요 ${got.length}</button><button class="${V.likesSeg==='sent'?'on':''}" data-act="likes-seg" data-seg="sent">보낸 좋아요 ${sent.length}</button></div>`;
+  const list=V.likesSeg==='got'?got:sent;
+  const note=V.likesSeg==='got'?`<div class="note">💌 나를 먼저 좋아한 사람이에요. 좋아요를 보내면 <b>바로 매칭</b>돼요.</div>`:`<div class="note">⏳ 아직 응답이 없는 좋아요예요. 상대도 좋아하면 매칭돼요.</div>`;
+  if(!list.length)return seg+`<div class="empty"><div class="big">${V.likesSeg==='got'?'💌':'💫'}</div><h3>${V.likesSeg==='got'?'아직 받은 좋아요가 없어요':'보낸 좋아요가 없어요'}</h3><p>프로필을 채우면 더 많은 사람에게 보여요.</p><button class="btn primary" data-act="tab" data-tab="discover">탐색하러 가기</button></div>`;
+  return seg+note+`<div class="lgrid">${list.map(p=>`<div class="lcard" data-act="detail" data-id="${p.id}">${pimg(p)}<div class="shade"></div>
+    <span class="tag ${V.likesSeg==='got'?'':'wait'}">${V.likesSeg==='got'?'♥ 나를 좋아해요':u.likes[p.id].super?'★ 슈퍼 좋아요':'대기 중'}</span>
+    <div class="ov"><h2>${esc(p.name)} <span>${p.age}</span></h2><p>${esc(p.region||'')}</p></div></div>`).join('')}</div>`;
+}
+
+/* ----- 채팅 ----- */
+function chatListView(u){
+  const all=Object.keys(u.matches).map(id=>({id,p:byId(id),m:u.chats[id]||[]})).filter(x=>x.p);
+  const fresh=all.filter(x=>!x.m.length),conv=all.filter(x=>x.m.length).sort((a,b)=>b.m[b.m.length-1].t-a.m[a.m.length-1].t);
+  if(!all.length)return `<div class="empty"><div class="big">💬</div><h3>아직 매칭이 없어요</h3><p>서로 좋아요를 누르면 여기서 대화할 수 있어요.</p><button class="btn primary" data-act="tab" data-tab="discover">탐색하러 가기</button></div>`;
+  return (fresh.length?`<div class="sec-h" style="margin-top:6px"><h3>새로운 매칭 <span style="color:var(--brand)">${fresh.length}</span></h3></div>
+    <div class="hscroll avatars">${fresh.map(x=>`<div class="av" data-act="open-chat" data-id="${x.id}"><div class="ring-img">${pimg(x.p)}</div><small>${esc(x.p.name)}</small></div>`).join('')}</div>`:'')
+   +`<div class="sec-h"><h3>메시지</h3></div>`
+   +(conv.length?conv.map(x=>{const last=x.m[x.m.length-1],un=x.m.length>(u.seen[x.id]||0)&&last.from==='them';
+      return `<div class="convo ${un?'unread':''}" data-act="open-chat" data-id="${x.id}">${pimg(x.p)}<div class="mid"><b>${esc(x.p.name)}</b><p>${last.from==='me'?'나: ':''}${esc(last.text)}</p></div><div class="time">${fmtTime(last.t)}${un?'<span class="udot"></span>':''}</div></div>`}).join('')
+    :`<p class="muted" style="font-size:14px">새로운 매칭에게 먼저 인사해보세요 👋</p>`);
+}
+function ices(p,u){
+  const c=p.interests.filter(i=>u.profile.interests.includes(i)),a=[];
+  if(c[0])a.push(`${c[0]} 좋아하신다고 해서요! 요즘은 뭐 하세요? ${EMOJI[c[0]]}`);
+  if(p.prompts&&p.prompts[0]&&p.prompts[0].a)a.push(`"${p.prompts[0].a}" 저도 완전 좋아해요 ㅎㅎ`);
+  a.push('안녕하세요! 프로필 보고 반가워서 연락드려요 😊');
+  return a;
+}
+function chatRoom(id){
+  const u=U(),p=byId(id);if(!p||!u.matches[id])return '';
+  const m=u.chats[id]||[],r=evaluate(p,u);
+  return `<div class="sheet-full chat-room">
+    <header class="topbar"><button class="icon-btn" data-act="close-layer" aria-label="뒤로">${ic('back')}</button>
+      ${pimg(p).replace('<img','<img data-act="detail" data-id="'+p.id+'"')}
+      <div class="who" data-act="detail" data-id="${p.id}"><b>${esc(p.name)}</b><small>${isOnline(p)?'<span class="online">접속 중</span>':`매칭 ${ago(u.matches[id].at)}`}</small></div>
+      <button class="icon-btn" data-act="unmatch" data-id="${id}" aria-label="매칭 해제" title="매칭 해제">${ic('more')}</button></header>
+    <div class="msgs" id="msgs">
+      <div class="match-intro"><div class="pics">${pimg(meP(u))}${pimg(p)}</div><b>${esc(p.name)}님과 매칭됐어요</b><br>${r.pass?`매칭 점수 ${r.total}점 · `:''}${r.common.length?`겹치는 관심사 ${esc(r.common.join(', '))}`:'새로운 취향을 알아가 보세요'}</div>
+      ${m.map((x,i)=>{const nx=m[i+1],showT=!nx||nx.from!==x.from||nx.t-x.t>60000;
+        return `<div class="bubble ${x.from}">${esc(x.text)}</div>${showT?`<div class="btime ${x.from}">${fmtTime(x.t)}</div>`:''}`}).join('')}
+      ${V.typing[id]?'<div class="bubble them"><span class="typing"><i></i><i></i><i></i></span></div>':''}
+    </div>
+    ${!m.length?`<div class="ice">${ices(p,u).map(t=>`<button data-act="ice" data-id="${id}" data-text="${esc(t)}">${esc(t)}</button>`).join('')}</div>`:''}
+    <form class="composer" data-form="chat" data-id="${id}" autocomplete="off"><input name="m" placeholder="메시지 보내기" maxlength="300"><button class="send" aria-label="전송">${ic('send')}</button></form>
+  </div>`;
+}
+const INTEREST_REPLY={'게임':'게임 얘기 나오면 못 참죠 ㅋㅋ 요즘 뭐 하세요? 같이 한 판 해요!','운동':'운동 좋아하시는구나! 주로 뭐 하세요? 💪','여행':'여행 최고죠 ✈️ 가장 좋았던 곳 어디예요?','영화':'요즘 볼만한 영화 있었어요? 저 추천 받는 거 좋아해요 🎬','독서':'최근에 읽은 책 뭐예요? 저도 리스트에 넣을래요 📚','요리':'요리 잘하세요? 자신 있는 메뉴 하나만 알려주세요 🍳','카페':'카페 투어 좋아해요 ☕ 아는 데 있으면 같이 가요!','음악':'요즘 무한반복 중인 노래 있어요? 🎧','등산':'등산! 주로 어느 산 가세요? ⛰️','사진':'사진 좋아하시는구나 📷 필름이에요 디카예요?','애니':'애니 인생작 하나만 말해주세요! 🌸','맛집':'맛집 얘기는 언제나 환영이에요 🍜 최근 최고는요?','반려동물':'반려동물 키우세요? 사진 보고 싶어요 🐾','전시회':'요즘 가볼 만한 전시 있을까요? 🖼️','코딩':'개발 하시는구나! 요즘 뭐 만들고 계세요? 💻'};
+const GENERIC=['오 그렇구나요 ㅎㅎ 더 얘기해주세요!','ㅋㅋㅋ 재밌네요','저도 비슷한 생각 해본 적 있어요 😊','그럼 주말엔 보통 뭐 하세요?','대화 잘 통하는 것 같아요 ㅎㅎ'];
+function greet(p,u){const c=p.interests.filter(i=>u.profile.interests.includes(i));return c.length?`안녕하세요! ${p.name}이에요 😊 ${c[0]} 좋아하신다고 해서 반가워서 먼저 인사드려요!`:`안녕하세요! ${p.name}이에요 😊 매칭돼서 반가워요!`}
+function reply(p,text){
+  if(/만나|약속|데이트|시간 되/.test(text))return '좋아요! 이번 주말 어때요? 시간 맞춰봐요 ☺️';
+  const hit=INTERESTS.find(i=>text.includes(i)&&p.interests.includes(i))||p.interests.find(i=>text.includes(i));
+  if(hit)return INTEREST_REPLY[hit];
+  if(/[?？]\s*$/.test(text)){const pr=p.prompts&&p.prompts[0];return pr&&pr.a?`음… 저는 "${pr.a}" 이런 게 좋아요! 그쪽은요?`:`저는 ${p.interests[0]} 할 때가 제일 좋아요!`}
+  return GENERIC[Math.floor(Math.random()*GENERIC.length)];
+}
+function sendMsg(id,text){
+  const u=U(),p=byId(id);if(!p||!u.matches[id])return;
+  (u.chats[id]=u.chats[id]||[]).push({from:'me',text,t:Date.now()});
+  if(p.isUser){const o=users[id.slice(2)],k='u:'+u.id;if(o)(o.chats[k]=o.chats[k]||[]).push({from:'them',text,t:Date.now()})}
+  u.seen[id]=u.chats[id].length;persist();renderLayer();
+  if(!p.isUser)scheduleReply(id,text);
+}
+function scheduleReply(id,text){
+  const u=U(),p=byId(id);
+  setTimeout(()=>{V.typing[id]=true;refresh(id)},400);
+  setTimeout(()=>{V.typing[id]=false;if(!u.matches[id])return;u.chats[id].push({from:'them',text:reply(p,text),t:Date.now()});persist();if(U()===u)refresh(id)},1300+Math.random()*900);
+}
+function refresh(id){
+  if(V.layer&&V.layer.type==='chat'&&V.layer.id===id){U().seen[id]=(U().chats[id]||[]).length;persist();renderLayer()}
+  else if(V.route==='app'&&V.tab==='chat'&&!V.layer)render();
+  else updateTabbar();
+}
+
+/* ----- 마이 ----- */
+function completeness(p){
+  const parts=[[p.photos.length>0,20,'사진을 올려보세요'],[!!p.bio,15,'한 줄 소개를 써보세요'],[!!(p.prompts[0]&&p.prompts[0].a),15,'질문 카드에 답해보세요'],[!!(p.prompts[1]&&p.prompts[1].a),15,'두 번째 질문 카드도 채워보세요'],[p.interests.length>=3,15,''],[!!p.job,10,'직업을 적어보세요'],[!!p.region,10,'']];
+  const score=parts.reduce((s,x)=>s+(x[0]?x[1]:0),0),tip=parts.find(x=>!x[0]&&x[2]);
+  return {score,tip:tip?tip[2]+' (+'+tip[1]+'%)':'완벽해요! 매칭 확률이 가장 높은 상태예요'};
+}
+function myView(u){
+  const p=u.profile,c=completeness(p);
+  const item=(act,icon,t,s,cls='')=>`<button class="${cls}" data-act="${act}"><span class="mi">${ic(icon)}</span><span class="mt"><b>${t}</b>${s?`<small>${s}</small>`:''}</span></button>`;
+  return `<div class="my-card" data-act="edit">${pimg(meP(u))}<div><h2>${esc(p.name)}, ${ageOf(p)}</h2><p>${esc(p.region)} · ${esc(p.job||'직업 미입력')}</p><p>@${esc(u.id)}</p></div><span class="edit">수정</span></div>
+    <div class="complete"><div class="row"><span>프로필 완성도</span><b>${c.score}%</b></div><div class="bar2"><i style="width:${c.score}%"></i></div><p>${c.tip}</p></div>
+    <div class="my-stats"><div><b>${Object.keys(u.likes).length}</b><small>보낸 좋아요</small></div><div><b>${Object.keys(u.matches).length}</b><small>매칭</small></div><div><b>${receivedLikes(u).length}</b><small>받은 좋아요</small></div></div>
+    <div class="menu">
+      ${item('edit','edit','프로필 수정','사진 · 소개 · 관심사 · 질문 카드')}
+      ${item('pref','sliders','이상형 조건','거르기와 점수 기준')}
+      ${item('logic','logic','내 추천 로직','왜 이 사람이 추천됐는지')}
+      ${item('reset-pass','refresh','패스한 사람 다시 보기',`${u.passes.length}명 패스함`)}
+      ${item('logout','out','로그아웃','')}
+      ${item('withdraw','trash','회원 탈퇴','계정과 대화가 모두 삭제돼요','danger')}
+    </div>
+    <p class="fine center" style="margin-top:18px">Pick. · 과제용 데모 · 데이터는 이 브라우저에만 저장돼요</p>`;
+}
+function formSheet(title,form,body){
+  return `<div class="sheet-full"><header class="topbar" style="border-bottom:1px solid var(--line)"><button class="icon-btn" data-act="close-layer" aria-label="닫기">${ic('back')}</button><span class="tb-title">${title}</span></header>
+    <form class="pad" data-form="${form}" novalidate style="padding-top:18px">${body}<div class="su-foot"><button class="btn primary block">저장</button></div></form></div>`;
+}
+
+/* ----- 상세 ----- */
+function detailView(id){
+  const u=U(),p=byId(id);if(!p)return '';
+  const r=evaluate(p,u),ph=photosOf(p),liked=!!u.likes[id],matched=!!u.matches[id],likesMe=!matched&&!liked&&theyLike(p,u)>=65;
+  return `<div class="sheet-full detail">
+    <div class="carousel"><div class="photos">${ph.map((s,i)=>pimg(p,s,i?'':'on')).join('')}</div><div class="pbars">${ph.map((_,i)=>`<i class="${i?'':'on'}"></i>`).join('')}</div>
+      <div class="tz l" data-act="ph-prev"></div><div class="tz r" data-act="ph-next"></div>
+      <button class="float-back" data-act="close-layer" aria-label="닫기">${ic('back')}</button></div>
+    ${likesMe?`<div class="banner-like">${ic('heart',1)} ${esc(p.name)}님이 회원님을 좋아해요</div>`:''}
+    <div class="d-head"><div><h1>${esc(p.name)} <span>${p.age}</span> ${vbadge(p)}</h1>
+      <p class="d-meta">${isOnline(p)?'<span class="online">접속 중</span>':''}<span>${esc(p.region||'')}</span><span>·</span><span>${esc(p.job||'')}</span></p></div>
+      ${r.pass?`<div class="ring" style="--v:${r.total}"><span>${r.total}<small>점</small></span></div>`:''}</div>
+    <div class="d-body">
+      <p class="d-bio">${esc(p.bio||'')}</p>
+      ${(p.prompts||[]).filter(x=>x.a).map(x=>`<div class="prompt"><p class="q">${esc(x.q)}</p><p class="a">${esc(x.a)}</p>${!liked&&!matched?`<button class="prompt-like" data-act="like-prompt" data-id="${id}" data-text="${esc(`"${x.a}" 답변 보고 좋아요 눌렀어요 😊`)}" aria-label="이 답변에 좋아요">${ic('heart',1)}</button>`:''}</div>`).join('')}
+      <div class="d-sec"><h3>기본 정보</h3><div class="info-grid"><div><small>키</small><b>${p.height}cm</b></div><div><small>외모 스타일</small><b>${esc(p.looks)}</b></div><div><small>종교</small><b>${esc(p.religion)}</b></div><div><small>연봉</small><b>${won(p.income)}</b></div></div></div>
+      <div class="d-sec"><h3>관심사</h3>${interestChips(p,u)}</div>
+      <div class="d-sec"><h3>${r.pass?`매칭 점수 ${r.total}점 — 이렇게 계산했어요`:'거르기 결과'}</h3>
+        ${r.pass?breakdown(r):`<div class="fail-box"><b>내 조건에서는 제외되는 사람이에요</b><ul>${r.fails.map(f=>`<li>${esc(f)}</li>`).join('')}</ul></div>`}</div>
+    </div>
+    <div class="d-actions">${matched||liked?actionFor(u,id,true):`<button class="act nope" data-act="d-pass" data-id="${id}" aria-label="패스">${ic('x')}</button><button class="act super" data-act="d-super" data-id="${id}" aria-label="슈퍼 좋아요">${ic('star',1)}</button><button class="act like" data-act="like" data-id="${id}" aria-label="좋아요">${ic('heart',1)}</button>`}</div>
+  </div>`;
+}
+
+/* ----- 내 로직 ----- */
+function logicView(){
+  const u=U(),pr=u.pref,{passed,failed}=rank(u);
+  const cut=failed.filter(f=>!(f.fails.length===1&&f.fails[0]==='원하는 성별 아님')),gOnly=failed.length-cut.length;
+  return `<div class="sheet-full"><header class="topbar" style="border-bottom:1px solid var(--line)"><button class="icon-btn" data-act="close-layer" aria-label="닫기">${ic('back')}</button><span class="tb-title">내 추천 로직</span><button class="btn sm ghost" data-act="pref">조건 수정</button></header>
+  <div class="pad" style="padding-top:16px">
+    ${passed[0]?`<div class="why" style="margin:0 0 12px"><h3>👑 지금 1위: ${esc(passed[0].p.name)} (${passed[0].total}점)</h3><p style="margin:0">${reasonText(passed[0],passed[1])}</p></div>`:''}
+    <div class="lg"><h2>① 거르기 — 절대 안 되는 조건</h2><p>하나라도 걸리면 점수와 상관없이 제외. "점수로 만회가 안 되는 것"만 넣었어요.</p>
+      <table><tr><th>조건</th><th>규칙</th><th>왜?</th></tr>${FILTERS.map(f=>`<tr><td><b>${f[0]}</b></td><td>${f[1]}</td><td class="w">${f[2]}</td></tr>`).join('')}</table>
+      <div class="formula">내 설정: ${pr.wantGender==='any'?'성별 무관':pr.wantGender==='F'?'여성':'남성'} · ${pr.ageMin}~${pr.ageMax}세 · ${pr.heightMin}~${pr.heightMax}cm · 차단 종교 ${pr.blockRel.length?esc(pr.blockRel.join(', ')):'없음'} · 최소 연봉 ${pr.incomeMin?won(pr.incomeMin):'안 봄'} · 관심사 0개 제외 ${pr.requireInterest?'켬':'끔'}</div></div>
+    <div class="lg"><h2>② 점수 — 무엇이 같으면 몇 점? (100점)</h2>
+      <table><tr><th>항목</th><th>배점</th><th>규칙</th><th>왜 이 점수?</th></tr>${RULES.map(r=>`<tr><td><b>${r.label}</b></td><td class="pt">${r.max}</td><td>${r.rule}</td><td class="w">${r.why}</td></tr>`).join('')}</table>
+      <div class="formula"><b>총점</b> = 관심사 + 종교 + 나이 + 외모 + 키 + 연봉<br><b>동점이면</b> 겹치는 관심사 많은 순 → 나이 차 적은 순</div></div>
+    <div class="lg"><h2>③ 이유 — 왜 이 사람이 1위인가?</h2><p>1위 카드에 자동으로 보여줘요.</p>
+      <ul style="margin:10px 0 0;padding-left:20px;font-size:14px"><li>만점 비율이 높은 항목 상위 3개 (가장 잘 맞는 점)</li><li>2위와의 점수 차이, 가장 크게 앞선 항목</li><li>만점이 아닌 항목 (아쉬운 점도 숨기지 않음)</li></ul>
+      <div class="formula">설계 원칙: 대화가 이어질 수 있는가(관심사) &gt; 가치관(종교·나이) &gt; 첫인상(외모·키) &gt; 조건(연봉)</div></div>
+    <div class="lg"><h2>💞 매칭은 어떻게 되나요?</h2><p>가상 프로필도 "나를 좋아할지" 간단한 점수를 가져요.</p>
+      <div class="formula">상대 점수 = 겹치는 관심사 × 15 (최대 45) + 나이 차 3살 이내 20 / 5살 이내 10 + 같은 종교 10 + 그 사람만의 성향 0~29<br>· 60점 이상 → 내 좋아요에 응답해 매칭 (슈퍼 좋아요는 45점 이상)<br>· 65점 이상 → 나에게 먼저 좋아요를 보냄<br>· 같은 브라우저에서 가입한 다른 회원은 실제로 서로 좋아요를 눌러야 매칭</div></div>
+    <div class="lg"><h2>🚫 거르기에서 제외된 사람 ${failed.length}명</h2>
+      ${cut.map(f=>`<div class="cut">${pimg(f.p)}<b>${esc(f.p.name)}</b><span class="chips">${f.fails.map(x=>`<span class="tag-bad">${esc(x)}</span>`).join('')}</span></div>`).join('')}
+      ${gOnly?`<p class="muted" style="font-size:13px;margin:10px 0 0">+ 원하는 성별이 아니라서 제외 ${gOnly}명</p>`:''}</div>
+  </div></div>`;
+}
+
+/* ----- 레이어 ----- */
+function openLayer(type,id){V.layer={type,id};renderLayer()}
+function closeLayer(){V.layer=null;renderLayer();render()}
+function renderLayer(){
+  const L=$('#layer');if(!V.layer){L.innerHTML='';document.body.style.overflow='';return}
+  document.body.style.overflow='hidden';
+  const {type,id}=V.layer,prev=$('#layer .composer input'),val=prev?prev.value:'';
+  L.innerHTML=type==='detail'?detailView(id):type==='chat'?chatRoom(id):type==='logic'?logicView()
+    :type==='edit'?formSheet('프로필 수정','edit',secBasic(V.editDraft)+secAbout(V.editDraft)+secInterests(V.editDraft)+secPhotos(V.editDraft))
+    :type==='pref'?formSheet('이상형 조건','pref',secPref(U().pref)):'';
+  if(type==='chat'){const box=$('#msgs');if(box)box.scrollTop=box.scrollHeight;const inp=$('#layer .composer input');if(inp){inp.value=val;if(matchMedia('(pointer:fine)').matches)inp.focus()}}
+}
+function openChat(id){const u=U();closeModal();V.tab='chat';V.route='app';u.seen[id]=(u.chats[id]||[]).length;persist();render();openLayer('chat',id)}
+
+/* ============================================================
+   이벤트
+   ============================================================ */
+document.addEventListener('click',async e=>{
+  const t=e.target.closest('[data-act]');if(!t)return;
+  const a=t.dataset.act,id=t.dataset.id,u=U();
+  switch(a){
+    case 'go-signup':V.route='signup';V.step=0;V.draft=newDraft();V.photoTarget=V.draft.profile;render();scrollTo(0,0);break;
+    case 'go-login':V.route='login';render();break;
+    case 'go-landing':V.route='landing';render();break;
+    case 'demo':await demoLogin();break;
+    case 'step-back':if(V.step===0)V.route='landing';else V.step--;render();scrollTo(0,0);break;
+    case 'tab':V.route='app';V.tab=t.dataset.tab;V.layer=null;renderLayer();render();scrollTo(0,0);break;
+    case 'detail':openLayer('detail',id);break;
+    case 'close-layer':closeLayer();break;
+    case 'logic':openLayer('logic');break;
+    case 'pref':openLayer('pref');break;
+    case 'edit':V.editDraft=clone(u.profile);V.photoTarget=V.editDraft;openLayer('edit');break;
+    case 'like':like(id);break;
+    case 'd-super':like(id,{super:true});break;
+    case 'like-prompt':like(id,{comment:t.dataset.text});break;
+    case 'd-pass':pass(id);break;
+    case 'sw-like':fly($('.scard.top'),1);break;
+    case 'sw-pass':fly($('.scard.top'),-1);break;
+    case 'sw-super':fly($('.scard.top'),0,true);break;
+    case 'sw-info':{const c=$('.scard.top');if(c)openLayer('detail',c.dataset.id);break}
+    case 'undo':if(V.lastPass){u.passes=u.passes.filter(x=>x!==V.lastPass);V.lastPass=null;persist();render()}break;
+    case 'ph-prev':photoNav(t.closest('.carousel'),-1);break;
+    case 'ph-next':photoNav(t.closest('.carousel'),1);break;
+    case 'open-chat':openChat(id);break;
+    case 'close-modal':closeModal();break;
+    case 'ice':sendMsg(id,t.dataset.text);break;
+    case 'unmatch':{const p=byId(id);if(p&&confirm(`${p.name}님과의 매칭을 해제할까요? 대화도 사라져요.`)){delete u.matches[id];delete u.chats[id];delete u.likes[id];if(!u.passes.includes(id))u.passes.push(id);
+      if(p.isUser){const o=users[id.slice(2)],k='u:'+u.id;if(o){delete o.matches[k];delete o.chats[k]}}persist();closeLayer();toast('매칭을 해제했어요')}break}
+    case 'likes-seg':V.likesSeg=t.dataset.seg;render();break;
+    case 'photo-add':if(V.photoTarget&&V.photoTarget.photos.length>=3)toast('사진은 3장까지예요');else $('#file').click();break;
+    case 'photo-del':V.photoTarget.photos.splice(+t.dataset.i,1);refreshPhotoGrid();break;
+    case 'reset-pass':u.passes=[];V.lastPass=null;persist();V.tab='discover';V.route='app';V.layer=null;renderLayer();render();toast('패스한 사람을 다시 보여드려요');break;
+    case 'logout':session=null;store.set('pk.session',null);V.route='landing';V.tab='home';V.layer=null;renderLayer();closeModal();render();toast('로그아웃했어요');break;
+    case 'withdraw':if(confirm('정말 탈퇴할까요? 계정과 대화가 모두 삭제돼요.')){
+      for(const o of Object.values(users)){const k='u:'+u.id;delete o.likes[k];delete o.matches[k];delete o.chats[k];o.passes=o.passes.filter(x=>x!==k)}
+      delete users[u.id];persist();session=null;store.set('pk.session',null);V.route='landing';V.tab='home';render();toast('탈퇴했어요')}break;
+  }
+});
+document.addEventListener('submit',async e=>{
+  const f=e.target.closest('form[data-form]');if(!f)return;e.preventDefault();
+  const fd=new FormData(f),k=f.dataset.form;
+  if(k==='login'){const id=(fd.get('id')||'').trim(),x=users[id];
+    if(!x||await hashPw(fd.get('pw')||'',x.salt)!==x.pwHash)return toast('아이디 또는 비밀번호가 맞지 않아요');
+    session=id;store.set('pk.session',id);V.route='app';V.tab='home';render();toast(`${x.profile.name}님, 반가워요!`)}
+  else if(k==='step'){const sec=STEPS[V.step].key,err=collect(sec,fd,V.draft);if(err)return toast(err);
+    if(sec==='basic')V.draft.pref=defaultPref(V.draft.profile.gender,ageOf(V.draft.profile));
+    if(V.step<STEPS.length-1){V.step++;render();scrollTo(0,0)}else await finishSignup()}
+  else if(k==='chat'){const text=(fd.get('m')||'').trim();if(text){f.querySelector('input').value='';sendMsg(f.dataset.id,text)}}
+  else if(k==='edit'){for(const s of ['basic','about','interests','photos']){const err=collect(s,fd,{profile:V.editDraft});if(err)return toast(err)}
+    U().profile=V.editDraft;persist();closeLayer();toast('프로필을 저장했어요')}
+  else if(k==='pref'){const d={profile:U().profile},err=collect('pref',fd,d);if(err)return toast(err);
+    U().pref=d.pref;persist();V.layer=null;renderLayer();render();toast('조건을 바꿨어요. 추천을 다시 계산했어요')}
+});
+document.addEventListener('change',e=>{
+  if(e.target.name==='interests'){const n=document.querySelectorAll('input[name=interests]:checked').length;
+    if(n>5){e.target.checked=false;toast('관심사는 5개까지예요')}
+    const c=$('#int-count');if(c)c.textContent=document.querySelectorAll('input[name=interests]:checked').length}
+});
+$('#file').addEventListener('change',async e=>{
+  const f=e.target.files[0];e.target.value='';if(!f||!V.photoTarget)return;
+  try{V.photoTarget.photos.push(await cropImage(f));refreshPhotoGrid()}catch(err){toast('이미지를 읽을 수 없어요')}
+});
+function refreshPhotoGrid(){const g=$('#photo-grid');if(g&&V.photoTarget)g.innerHTML=photoGridInner(V.photoTarget.photos)}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){if($('#modal').innerHTML)closeModal();else if(V.layer)closeLayer()}});
+
+render();
+</script>
+</body>
+</html>
