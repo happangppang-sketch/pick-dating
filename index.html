@@ -348,12 +348,24 @@ svg{flex:none}
 table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px}
 th,td{text-align:left;padding:9px 6px;border-bottom:1px solid var(--line);vertical-align:top}
 th{font-size:11.5px;color:var(--muted);font-weight:700}
+th:first-child,td:first-child{white-space:nowrap}
 td.pt{font-weight:900;color:var(--brand);white-space:nowrap}
 td.w{color:var(--muted)}
 .formula{background:var(--soft);border-radius:12px;padding:12px 14px;margin-top:12px;font-size:13.5px}
 .cut{display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);font-size:13.5px}
 .cut img{width:34px;height:34px;border-radius:10px;object-fit:cover;opacity:.7;background:#f3e6ea}
 .tag-bad{font-size:11.5px;color:#dc2626;background:#fef2f2;padding:2px 8px;border-radius:99px;font-weight:700}
+.tag-on,.tag-off{font-size:11px;font-weight:800;padding:2px 7px;border-radius:99px;white-space:nowrap}
+.tag-on{color:#16a34a;background:#ecfdf3}.tag-off{color:var(--muted);background:var(--soft)}
+.presets{display:flex;gap:8px;overflow-x:auto;margin:0 -20px 6px;padding:0 20px 4px;scrollbar-width:none}
+.presets::-webkit-scrollbar{display:none}
+.preset{flex:none;height:36px;padding:0 14px;border-radius:99px;border:1.5px solid var(--line);background:#fff;font-weight:700;font-size:13px}
+.preset:active{background:#fff1f3;border-color:var(--brand);color:var(--brand)}
+.wrow{padding:12px 0;border-bottom:1px solid var(--line)}
+.wtop{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.wtop em{font-style:normal;font-weight:900;font-size:20px;color:var(--brand);font-variant-numeric:tabular-nums}
+.wrow input[type=range]{width:100%;accent-color:var(--brand);margin:2px 0 4px}
+.wrow small{font-size:12px}
 
 .toast{position:fixed;bottom:92px;left:50%;transform:translateX(-50%) translateY(16px);background:#17171c;color:#fff;padding:11px 18px;border-radius:14px;font-size:14px;opacity:0;transition:.25s;pointer-events:none;z-index:80;max-width:calc(100% - 40px);text-align:center}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -378,7 +390,7 @@ const LOOKS=['귀여운','시크한','훈훈한','단정한','스포티','지적
 const RELIGIONS=['무교','기독교','불교','천주교'];
 const INTERESTS=['게임','운동','여행','영화','독서','요리','카페','음악','등산','사진','애니','맛집','반려동물','전시회','코딩'];
 const EMOJI={'게임':'🎮','운동':'🏋️','여행':'✈️','영화':'🎬','독서':'📚','요리':'🍳','카페':'☕','음악':'🎧','등산':'⛰️','사진':'📷','애니':'🌸','맛집':'🍜','반려동물':'🐶','전시회':'🖼️','코딩':'💻'};
-const REGIONS=['서울 강남','서울 송파','서울 마포','서울 성동','서울 용산','경기 성남','경기 수원','인천','대전','세종','충북 청주','충북 충주','부산','대구','광주'];
+const REGIONS=['서울','경기','인천','강원','대전','세종','충북','충남','광주','전북','전남','대구','경북','부산','울산','경남','제주'];
 const PROMPTS=['나의 완벽한 주말은','이런 사람과 잘 맞아요','첫 데이트로 가고 싶은 곳','요즘 빠져 있는 것','나를 세 단어로 표현하면','절대 양보 못 하는 것'];
 
 /* ---------- 가상 프로필 30명 ----------
@@ -416,25 +428,54 @@ const RAW=[
  ['서동현','M',27,186,'시크한',5600,'무교','운동,사진,여행','사진작가','인천','필름 냄새 좋아하는 사진가',1,'같이 걷는 걸 좋아하는 사람',3,'노을 사진',1],
 ];
 const BASE=RAW.map((r,i)=>({id:'p'+(i+1),name:r[0],gender:r[1],age:r[2],height:r[3],looks:r[4],income:r[5],religion:r[6],
-  interests:r[7].split(','),job:r[8],region:r[9],bio:r[10],prompts:[{q:PROMPTS[r[11]],a:r[12]},{q:PROMPTS[r[13]],a:r[14]}],verified:!!r[15]}));
+  interests:r[7].split(','),job:r[8],region:r[9].split(' ')[0],bio:r[10],prompts:[{q:PROMPTS[r[11]],a:r[12]},{q:PROMPTS[r[13]],a:r[14]}],verified:!!r[15]}));
 
 /* ---------- 내 로직 (설명용) ---------- */
+// [이름, 규칙, 이유, 켜고 끄는 키(null=항상 적용)]
 const FILTERS=[
-  ['성별','원하는 성별이 아니면 제외','애초에 추천 대상이 아님'],
-  ['나이','허용 나이 범위 밖이면 제외','생활 단계 차이는 점수로 메꿀 수 없음'],
-  ['키','허용 키 범위 밖이면 제외','본인이 정한 선은 존중'],
-  ['종교','"절대 안 됨"으로 고른 종교면 제외','결혼·명절까지 이어지는 타협 불가 가치관'],
-  ['연봉','최소 연봉 미만이면 제외 (0이면 안 봄)','기본값 0 — 연봉으로 사람을 자르지 않는 쪽이 기본'],
-  ['관심사','겹치는 관심사가 0개면 제외 (선택)','공통점이 하나도 없으면 첫 대화가 어려움'],
+  ['성별','원하는 성별이 아니면 제외','애초에 추천 대상이 아님',null],
+  ['나이','허용 나이 범위 밖이면 제외','생활 단계 차이는 점수로 메꿀 수 없음','age'],
+  ['키','허용 키 범위 밖이면 제외','본인이 정한 선은 존중','height'],
+  ['종교','"절대 안 됨"으로 고른 종교면 제외','결혼·명절까지 이어지는 타협 불가 가치관','religion'],
+  ['연봉','최소 연봉 미만이면 제외 (0이면 안 봄)','기본값 0 — 연봉으로 사람을 자르지 않는 쪽이 기본','income'],
+  ['관심사','겹치는 관심사가 0개면 제외','공통점이 하나도 없으면 첫 대화가 어려움','ri'],
 ];
-const RULES=[
-  {label:'관심사',max:35,rule:'겹침 1개 12점 · 2개 24점 · 3개+ 35점',why:'같이 할 거리가 있어야 대화와 데이트가 이어진다. 가장 오래 작용해서 비중이 제일 크다.'},
-  {label:'종교',max:15,rule:'같으면 15점, 다르면 0점',why:'가치관 문제. "절대 안 됨"은 거르기에서 이미 빠졌으니 여기선 같으면 가산만.'},
-  {label:'나이',max:15,rule:'차이 0~2살 15 · 3~4살 8 · 5살+ 3',why:'비슷한 나이일수록 생활 단계와 대화 코드가 맞는다.'},
-  {label:'외모',max:15,rule:'선호 스타일이면 15점 (선호 없음이면 모두 15)',why:'첫인상은 중요하지만 취향일 뿐. 등급이 아닌 "스타일"로 기록해 우열을 만들지 않았다.'},
-  {label:'키',max:10,rule:'이상형 키와 ±3cm 10 · ±7cm 5 · 그 외 0',why:'허용 범위는 거르기에서 처리, 범위 안에선 이상형에 가까울수록 조금 더.'},
-  {label:'연봉',max:10,rule:'(상대 연봉 ÷ 희망 연봉) × 10, 최대 10',why:'고려는 하되 연봉으로 줄 세우지 않도록 가장 낮은 비중 + 상한.'},
+/* 점수 비중: 기본값 + 사용자가 바꾼 값. 합계는 항상 100점으로 자동 환산 */
+const W_KEYS=[['interest','관심사'],['religion','종교'],['age','나이'],['looks','외모'],['height','키'],['income','연봉']];
+const DEFAULT_LOGIC={w:{interest:35,religion:15,age:15,looks:15,height:10,income:10},f:{age:true,height:true,religion:true,income:true}};
+const PRESETS=[
+  ['기본값',{interest:35,religion:15,age:15,looks:15,height:10,income:10}],
+  ['💬 대화·취향 중심',{interest:50,religion:10,age:15,looks:10,height:5,income:10}],
+  ['🙏 가치관 중심',{interest:25,religion:30,age:25,looks:10,height:5,income:5}],
+  ['✨ 첫인상 중심',{interest:20,religion:10,age:10,looks:35,height:20,income:5}],
+  ['⚖️ 모두 같게',{interest:10,religion:10,age:10,looks:10,height:10,income:10}],
 ];
+const RULE_WHY={
+  interest:'같이 할 거리가 있어야 대화와 데이트가 이어진다. 가장 오래 작용해서 기본 비중이 제일 크다.',
+  religion:'가치관 문제. "절대 안 됨"은 거르기에서 이미 빠졌으니 여기선 같으면 가산만.',
+  age:'비슷한 나이일수록 생활 단계와 대화 코드가 맞는다.',
+  looks:'첫인상은 중요하지만 취향일 뿐. 등급이 아닌 "스타일"로 기록해 우열을 만들지 않았다.',
+  height:'허용 범위는 거르기에서 처리, 범위 안에선 이상형에 가까울수록 조금 더.',
+  income:'고려는 하되 연봉으로 줄 세우지 않도록 기본 비중을 가장 낮게, 상한도 둠.'};
+function logicOf(u){const l=(u&&u.logic)||{};return {w:{...DEFAULT_LOGIC.w,...(l.w||{})},f:{...DEFAULT_LOGIC.f,...(l.f||{})}}}
+const isDefaultLogic=L=>W_KEYS.every(([k])=>L.w[k]===DEFAULT_LOGIC.w[k])&&Object.values(L.f).every(Boolean);
+/* 비중을 합계 100점인 정수 배점으로 환산 (최대 나머지 방식) */
+function intMaxes(L){
+  const sum=W_KEYS.reduce((a,[k])=>a+L.w[k],0),M={};
+  if(!sum){W_KEYS.forEach(([k])=>M[k]=0);return M}
+  const raw=W_KEYS.map(([k])=>({k,v:L.w[k]*100/sum}));
+  raw.forEach(r=>M[r.k]=Math.floor(r.v));
+  let left=100-raw.reduce((a,r)=>a+M[r.k],0);
+  raw.sort((a,b)=>(b.v%1)-(a.v%1)).forEach(r=>{if(left>0&&r.v>0){M[r.k]++;left--}});
+  return M;
+}
+function ruleText(k,m){const r=x=>Math.round(x*m);return {
+  interest:`겹침 1개 ${r(12/35)}점 · 2개 ${r(24/35)}점 · 3개+ ${m}점`,
+  religion:`같으면 ${m}점, 다르면 0점`,
+  age:`차이 0~2살 ${m} · 3~4살 ${r(8/15)} · 5살+ ${r(3/15)}`,
+  looks:`선호 스타일이면 ${m}점 (선호 없음이면 모두 ${m})`,
+  height:`이상형 키와 ±3cm ${m} · ±7cm ${r(.5)} · 그 외 0`,
+  income:`(상대 연봉 ÷ 희망 연봉) × ${m}, 최대 ${m}`}[k]}
 const STEPS=[
   {key:'account',title:'계정 만들기',sub:'로그인에 쓸 아이디와 비밀번호를 정해주세요'},
   {key:'basic',title:'기본 정보',sub:'프로필에 보여지는 정보예요'},
@@ -509,7 +550,8 @@ function cropImage(file,w=480,h=600){return new Promise((res,rej)=>{const r=new 
 /* ---------- 상태 ---------- */
 let users=store.get('pk.users',{});
 let session=store.get('pk.session',null);
-for(const u of Object.values(users)){u.likes=u.likes||{};u.passes=u.passes||[];u.matches=u.matches||{};u.chats=u.chats||{};u.seen=u.seen||{}}
+for(const u of Object.values(users)){u.likes=u.likes||{};u.passes=u.passes||[];u.matches=u.matches||{};u.chats=u.chats||{};u.seen=u.seen||{};
+  const rg=u.profile&&u.profile.region;if(rg&&!REGIONS.includes(rg))u.profile.region=REGIONS.includes(rg.split(' ')[0])?rg.split(' ')[0]:''}
 if(session&&!users[session])session=null;
 const V={route:session?'app':'landing',tab:'home',step:0,draft:null,editDraft:null,photoTarget:null,layer:null,lastPass:null,likesSeg:'got',typing:{}};
 const U=()=>users[session];
@@ -531,29 +573,31 @@ const isOnline=p=>!p.isUser&&H(new Date().toDateString()+p.id)%3===0;
    ① 거르기  ② 점수  ③ 이유
    ============================================================ */
 function evaluate(p,u){
-  const pr=u.pref,me=u.profile,myAge=ageOf(me),fails=[];
+  const pr=u.pref,me=u.profile,myAge=ageOf(me),L=logicOf(u),F=L.f,fails=[];
   if(pr.wantGender!=='any'&&p.gender!==pr.wantGender)fails.push('원하는 성별 아님');
-  if(p.age<pr.ageMin||p.age>pr.ageMax)fails.push(`나이 ${p.age}세 (허용 ${pr.ageMin}~${pr.ageMax})`);
-  if(p.height<pr.heightMin||p.height>pr.heightMax)fails.push(`키 ${p.height}cm (허용 ${pr.heightMin}~${pr.heightMax})`);
-  if(pr.blockRel.includes(p.religion))fails.push(`종교 ${p.religion} (절대 안 됨)`);
-  if(pr.incomeMin>0&&p.income<pr.incomeMin)fails.push(`연봉 ${won(p.income)} (최소 ${won(pr.incomeMin)})`);
+  if(F.age&&(p.age<pr.ageMin||p.age>pr.ageMax))fails.push(`나이 ${p.age}세 (허용 ${pr.ageMin}~${pr.ageMax})`);
+  if(F.height&&(p.height<pr.heightMin||p.height>pr.heightMax))fails.push(`키 ${p.height}cm (허용 ${pr.heightMin}~${pr.heightMax})`);
+  if(F.religion&&pr.blockRel.includes(p.religion))fails.push(`종교 ${p.religion} (절대 안 됨)`);
+  if(F.income&&pr.incomeMin>0&&p.income<pr.incomeMin)fails.push(`연봉 ${won(p.income)} (최소 ${won(pr.incomeMin)})`);
   const common=p.interests.filter(i=>me.interests.includes(i));
   if(pr.requireInterest&&!common.length)fails.push('겹치는 관심사 0개');
   if(fails.length)return {pass:false,fails,common};
 
-  const items=[];
-  items.push({label:'관심사',max:35,pts:[0,12,24,35][Math.min(3,common.length)],
-    detail:common.length?`${common.join('·')} — ${common.length}개 겹침`:'겹치는 관심사 없음',short:`관심사 ${common.length}개 일치(${common.join('·')})`});
+  // 각 항목은 0~1 사이 "얼마나 맞는지"를 구하고, 사용자가 정한 배점(M)을 곱한다
+  const M=intMaxes(L),items=[];
+  const add=(key,label,frac,detail,short)=>{if(M[key]>0)items.push({key,label,max:M[key],pts:Math.round(frac*M[key]),detail,short})};
+  add('interest','관심사',[0,12/35,24/35,1][Math.min(3,common.length)],
+    common.length?`${common.join('·')} — ${common.length}개 겹침`:'겹치는 관심사 없음',`관심사 ${common.length}개 일치(${common.join('·')})`);
   const sameRel=p.religion===me.religion;
-  items.push({label:'종교',max:15,pts:sameRel?15:0,detail:sameRel?`둘 다 ${p.religion}`:`나 ${me.religion} / 상대 ${p.religion}`,short:`같은 종교(${p.religion})`});
+  add('religion','종교',sameRel?1:0,sameRel?`둘 다 ${p.religion}`:`나 ${me.religion} / 상대 ${p.religion}`,`같은 종교(${p.religion})`);
   const ad=Math.abs(p.age-myAge);
-  items.push({label:'나이',max:15,pts:ad<=2?15:ad<=4?8:3,detail:`나이 차 ${ad}살`,short:ad===0?'동갑':`나이 차 ${ad}살`});
-  const noPref=!pr.looksPref.length,lp=noPref||pr.looksPref.includes(p.looks)?15:0;
-  items.push({label:'외모',max:15,pts:lp,detail:noPref?`선호 없음 (${p.looks})`:lp?`선호 스타일 '${p.looks}'`:`'${p.looks}' — 선호 목록에 없음`,short:`선호 스타일(${p.looks})`});
+  add('age','나이',ad<=2?1:ad<=4?8/15:3/15,`나이 차 ${ad}살`,ad===0?'동갑':`나이 차 ${ad}살`);
+  const noPref=!pr.looksPref.length,lp=noPref||pr.looksPref.includes(p.looks);
+  add('looks','외모',lp?1:0,noPref?`선호 없음 (${p.looks})`:lp?`선호 스타일 '${p.looks}'`:`'${p.looks}' — 선호 목록에 없음`,`선호 스타일(${p.looks})`);
   const hd=Math.abs(p.height-pr.idealHeight);
-  items.push({label:'키',max:10,pts:hd<=3?10:hd<=7?5:0,detail:`${p.height}cm — 이상형 ${pr.idealHeight}cm와 ${hd}cm 차이`,short:`이상형 키와 ${hd}cm 차이`});
-  const icp=pr.incomeWish>0?Math.min(10,Math.round(10*p.income/pr.incomeWish)):10;
-  items.push({label:'연봉',max:10,pts:icp,detail:`${won(p.income)} / 희망 ${won(pr.incomeWish)}`,short:icp>=10?'희망 연봉 충족':`연봉 ${won(p.income)}`});
+  add('height','키',hd<=3?1:hd<=7?.5:0,`${p.height}cm — 이상형 ${pr.idealHeight}cm와 ${hd}cm 차이`,`이상형 키와 ${hd}cm 차이`);
+  const ifr=pr.incomeWish>0?Math.min(1,p.income/pr.incomeWish):1;
+  add('income','연봉',ifr,`${won(p.income)} / 희망 ${won(pr.incomeWish)}`,ifr>=1?'희망 연봉 충족':`연봉 ${won(p.income)}`);
   return {pass:true,items,common,total:items.reduce((s,i)=>s+i.pts,0)};
 }
 function rank(u){
@@ -668,7 +712,7 @@ function secPref(pr){
    +`<div class="grid2">${fld('최소 키',numIn('heightMin',pr.heightMin))}${fld('최대 키',numIn('heightMax',pr.heightMax))}</div>`
    +grp('절대 안 되는 종교',checkChips('blockRel',RELIGIONS,pr.blockRel))
    +fld('최소 연봉 (만원 · 0이면 안 봄)',numIn('incomeMin',pr.incomeMin))
-   +`<label class="check-row" style="margin-bottom:22px"><input type="checkbox" name="requireInterest" ${pr.requireInterest?'checked':''}><span>겹치는 관심사가 하나도 없으면 제외</span></label>`
+   +`<p class="hint" style="margin:-4px 0 22px">거르기를 하나씩 켜고 끄거나 점수 비중을 바꾸는 건 <b>마이 → 로직 설정</b>에서 할 수 있어요.</p>`
    +`<h3 class="sub-h">② 점수 <span class="muted" style="font-size:13px;font-weight:600">통과한 사람을 채점할 때</span></h3>`
    +`<div class="grid2">${fld('이상형 키',numIn('idealHeight',pr.idealHeight))}${fld('희망 연봉 (만원)',numIn('incomeWish',pr.incomeWish))}</div>`
    +grp('선호 외모 스타일 (안 고르면 상관없음)',checkChips('looksPref',LOOKS,pr.looksPref));
@@ -701,7 +745,7 @@ function collect(sec,fd,d){
       p.bio=bio;p.prompts=[0,1].map(i=>({q:fd.get('q'+i),a:(fd.get('a'+i)||'').trim()}));return null}
     case 'pref':{const pr={wantGender:fd.get('wantGender'),ageMin:N('ageMin'),ageMax:N('ageMax'),heightMin:N('heightMin'),heightMax:N('heightMax'),
         idealHeight:N('idealHeight'),looksPref:fd.getAll('looksPref'),blockRel:fd.getAll('blockRel'),incomeMin:N('incomeMin')||0,incomeWish:N('incomeWish')||0,
-        requireInterest:fd.get('requireInterest')==='on'};
+        requireInterest:d.pref?d.pref.requireInterest!==false:true};
       if(!pr.ageMin||!pr.ageMax||pr.ageMin>pr.ageMax)return '나이 범위를 확인해주세요';
       if(!pr.heightMin||!pr.heightMax||pr.heightMin>pr.heightMax)return '키 범위를 확인해주세요';
       if(!pr.idealHeight)return '이상형 키를 입력해주세요';
@@ -733,7 +777,7 @@ function welcomeView(){
 async function demoLogin(){
   if(!users.demo){
     users.demo={id:'demo',salt:'demo',pwHash:await hashPw('demo1234','demo'),createdAt:Date.now(),
-      profile:{name:'체험유저',gender:'M',birthYear:YEAR-24,height:175,region:'서울 마포',looks:'훈훈한',job:'대학생',income:3000,religion:'무교',
+      profile:{name:'체험유저',gender:'M',birthYear:YEAR-24,height:175,region:'서울',looks:'훈훈한',job:'대학생',income:3000,religion:'무교',
         interests:['게임','운동','여행','카페'],bio:'과제하다 쉬는 시간엔 게임',prompts:[{q:PROMPTS[0],a:'늦잠 자고 PC방'},{q:PROMPTS[2],a:'보드게임 카페'}],photos:[]},
       pref:{...defaultPref('M'),ageMin:21,ageMax:28,heightMin:155,heightMax:172,idealHeight:163,looksPref:['귀여운','단정한']},...emptyState()};
     persist();
@@ -982,7 +1026,8 @@ function myView(u){
     <div class="my-stats"><div><b>${Object.keys(u.likes).length}</b><small>보낸 좋아요</small></div><div><b>${Object.keys(u.matches).length}</b><small>매칭</small></div><div><b>${receivedLikes(u).length}</b><small>받은 좋아요</small></div></div>
     <div class="menu">
       ${item('edit','edit','프로필 수정','사진 · 소개 · 관심사 · 질문 카드')}
-      ${item('pref','sliders','이상형 조건','거르기와 점수 기준')}
+      ${item('pref','sliders','이상형 조건','나이·키·종교·연봉 범위와 선호')}
+      ${item('logic-edit','sliders','로직 설정',isDefaultLogic(logicOf(u))&&u.pref.requireInterest?'기본값 사용 중 · 점수 비중과 거르기 조절':'직접 바꾼 로직 사용 중')}
       ${item('logic','logic','내 추천 로직','왜 이 사람이 추천됐는지')}
       ${item('reset-pass','refresh','패스한 사람 다시 보기',`${u.passes.length}명 패스함`)}
       ${item('logout','out','로그아웃','')}
@@ -1021,16 +1066,18 @@ function detailView(id){
 
 /* ----- 내 로직 ----- */
 function logicView(){
-  const u=U(),pr=u.pref,{passed,failed}=rank(u);
+  const u=U(),pr=u.pref,{passed,failed}=rank(u),L=logicOf(u),M=intMaxes(L),custom=!isDefaultLogic(L)||!pr.requireInterest;
+  const on=k=>k===null?true:k==='ri'?pr.requireInterest:L.f[k];
   const cut=failed.filter(f=>!(f.fails.length===1&&f.fails[0]==='원하는 성별 아님')),gOnly=failed.length-cut.length;
-  return `<div class="sheet-full"><header class="topbar" style="border-bottom:1px solid var(--line)"><button class="icon-btn" data-act="close-layer" aria-label="닫기">${ic('back')}</button><span class="tb-title">내 추천 로직</span><button class="btn sm ghost" data-act="pref">조건 수정</button></header>
+  return `<div class="sheet-full"><header class="topbar" style="border-bottom:1px solid var(--line)"><button class="icon-btn" data-act="close-layer" aria-label="닫기">${ic('back')}</button><span class="tb-title">내 추천 로직</span><button class="btn sm primary" data-act="logic-edit">${ic('sliders')} 로직 수정</button></header>
   <div class="pad" style="padding-top:16px">
+    <div class="note" style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span>${custom?'🛠️ <b>직접 바꾼 로직</b>을 쓰고 있어요':'📌 <b>기본 로직</b>을 쓰고 있어요'}</span>${custom?'<button class="link" data-act="logic-reset-now">기본값으로</button>':''}</div>
     ${passed[0]?`<div class="why" style="margin:0 0 12px"><h3>👑 지금 1위: ${esc(passed[0].p.name)} (${passed[0].total}점)</h3><p style="margin:0">${reasonText(passed[0],passed[1])}</p></div>`:''}
     <div class="lg"><h2>① 거르기 — 절대 안 되는 조건</h2><p>하나라도 걸리면 점수와 상관없이 제외. "점수로 만회가 안 되는 것"만 넣었어요.</p>
-      <table><tr><th>조건</th><th>규칙</th><th>왜?</th></tr>${FILTERS.map(f=>`<tr><td><b>${f[0]}</b></td><td>${f[1]}</td><td class="w">${f[2]}</td></tr>`).join('')}</table>
+      <table><tr><th>조건</th><th>규칙</th><th>왜?</th><th></th></tr>${FILTERS.map(f=>`<tr style="${on(f[3])?'':'opacity:.45'}"><td><b>${f[0]}</b></td><td>${f[1]}</td><td class="w">${f[2]}</td><td>${on(f[3])?'<span class="tag-on">켬</span>':'<span class="tag-off">끔</span>'}</td></tr>`).join('')}</table>
       <div class="formula">내 설정: ${pr.wantGender==='any'?'성별 무관':pr.wantGender==='F'?'여성':'남성'} · ${pr.ageMin}~${pr.ageMax}세 · ${pr.heightMin}~${pr.heightMax}cm · 차단 종교 ${pr.blockRel.length?esc(pr.blockRel.join(', ')):'없음'} · 최소 연봉 ${pr.incomeMin?won(pr.incomeMin):'안 봄'} · 관심사 0개 제외 ${pr.requireInterest?'켬':'끔'}</div></div>
     <div class="lg"><h2>② 점수 — 무엇이 같으면 몇 점? (100점)</h2>
-      <table><tr><th>항목</th><th>배점</th><th>규칙</th><th>왜 이 점수?</th></tr>${RULES.map(r=>`<tr><td><b>${r.label}</b></td><td class="pt">${r.max}</td><td>${r.rule}</td><td class="w">${r.why}</td></tr>`).join('')}</table>
+      <table><tr><th>항목</th><th>배점</th><th>규칙</th><th>왜 이 점수?</th></tr>${W_KEYS.map(([k,l])=>`<tr style="${M[k]?'':'opacity:.45'}"><td><b>${l}</b></td><td class="pt">${M[k]}${M[k]!==DEFAULT_LOGIC.w[k]?`<br><small class="muted" style="font-weight:600">기본 ${DEFAULT_LOGIC.w[k]}</small>`:''}</td><td>${M[k]?ruleText(k,M[k]):'사용 안 함'}</td><td class="w">${RULE_WHY[k]}</td></tr>`).join('')}</table>
       <div class="formula"><b>총점</b> = 관심사 + 종교 + 나이 + 외모 + 키 + 연봉<br><b>동점이면</b> 겹치는 관심사 많은 순 → 나이 차 적은 순</div></div>
     <div class="lg"><h2>③ 이유 — 왜 이 사람이 1위인가?</h2><p>1위 카드에 자동으로 보여줘요.</p>
       <ul style="margin:10px 0 0;padding-left:20px;font-size:14px"><li>만점 비율이 높은 항목 상위 3개 (가장 잘 맞는 점)</li><li>2위와의 점수 차이, 가장 크게 앞선 항목</li><li>만점이 아닌 항목 (아쉬운 점도 숨기지 않음)</li></ul>
@@ -1043,6 +1090,39 @@ function logicView(){
   </div></div>`;
 }
 
+/* ----- 로직 설정 (사용자가 직접 조절) ----- */
+function logicEditView(){
+  const L=V.logicDraft,M=intMaxes(L);
+  const tg=(key,label,sub,checked)=>`<label class="check-row"><input type="checkbox" data-lf="${key}" ${checked?'checked':''}><span style="flex:1">${label}<small class="muted" style="display:block;font-size:12px">${sub}</small></span></label>`;
+  return `<div class="sheet-full"><header class="topbar" style="border-bottom:1px solid var(--line)"><button class="icon-btn" data-act="close-layer" aria-label="닫기">${ic('back')}</button><span class="tb-title">로직 설정</span><button class="btn sm ghost" data-act="logic-default">기본값</button></header>
+  <form class="pad" data-form="logic" novalidate style="padding-top:16px">
+    <div class="why" id="logic-preview" style="margin:0 0 18px">${logicPreview()}</div>
+    <h3 class="sub-h">② 점수 비중 <span class="muted" style="font-size:13px;font-weight:600">합계는 자동으로 100점</span></h3>
+    <div class="presets">${PRESETS.map((p,i)=>`<button type="button" class="preset" data-act="logic-preset" data-i="${i}">${p[0]}</button>`).join('')}</div>
+    ${W_KEYS.map(([k,l])=>`<div class="wrow"><div class="wtop"><b>${l}</b><span><em id="wm-${k}">${M[k]}</em>점 <small class="muted">· 기본 ${DEFAULT_LOGIC.w[k]}</small></span></div>
+      <input type="range" min="0" max="50" step="5" value="${L.w[k]}" data-w="${k}" aria-label="${l} 비중"><small class="muted" id="wr-${k}">${M[k]?ruleText(k,M[k]):'사용 안 함 (0점)'}</small></div>`).join('')}
+    <h3 class="sub-h" style="margin-top:24px">① 거르기 켜고 끄기 <span class="muted" style="font-size:13px;font-weight:600">성별은 항상 적용</span></h3>
+    ${tg('age','나이 범위','범위 밖이면 제외',L.f.age)}${tg('height','키 범위','범위 밖이면 제외',L.f.height)}${tg('religion','종교 차단','"절대 안 됨" 종교면 제외',L.f.religion)}${tg('income','최소 연봉','최소 연봉 미만이면 제외',L.f.income)}${tg('ri','관심사 0개 제외','겹치는 관심사가 없으면 제외',L.ri)}
+    <p class="hint" style="margin:12px 0 0">범위 숫자(나이·키·연봉 등)는 <button type="button" class="link" data-act="pref" style="padding:0">이상형 조건</button>에서 바꿔요.</p>
+    <div class="su-foot"><button class="btn primary block">이 로직으로 저장</button></div>
+  </form></div>`;
+}
+function logicPreview(){
+  const u=U(),L=V.logicDraft,tmp={...u,logic:{w:L.w,f:L.f},pref:{...u.pref,requireInterest:L.ri}},{passed}=rank(tmp),now=rank(u).passed[0];
+  if(!passed.length)return `<h3>⚠️ 이 설정이면 통과하는 사람이 없어요</h3><p style="margin:0">거르기를 끄거나 범위를 넓혀보세요.</p>`;
+  const t=passed[0],changed=now&&now.p.id!==t.p.id;
+  return `<h3>미리보기 · 이 설정이면 1위는 ${esc(t.p.name)} (${t.total}점)</h3><p style="margin:0">${changed?`지금 1위 ${esc(now.p.name)}님 대신 <b>${esc(t.p.name)}</b>님이 1위가 돼요. `:'1위는 그대로예요. '}통과 ${passed.length}명 · 2위 ${passed[1]?esc(passed[1].p.name)+' '+passed[1].total+'점':'없음'}</p>`;
+}
+function readLogicForm(){
+  const L=V.logicDraft;
+  document.querySelectorAll('#layer [data-w]').forEach(r=>L.w[r.dataset.w]=Number(r.value));
+  document.querySelectorAll('#layer [data-lf]').forEach(c=>{if(c.dataset.lf==='ri')L.ri=c.checked;else L.f[c.dataset.lf]=c.checked});
+  const M=intMaxes(L);
+  W_KEYS.forEach(([k])=>{const e=$('#wm-'+k),r=$('#wr-'+k);if(e)e.textContent=M[k];if(r)r.textContent=M[k]?ruleText(k,M[k]):'사용 안 함 (0점)'});
+  const pv=$('#logic-preview');if(pv)pv.innerHTML=logicPreview();
+}
+function openLogicEdit(){const u=U(),L=logicOf(u);V.logicDraft={w:{...L.w},f:{...L.f},ri:u.pref.requireInterest!==false};openLayer('logic-edit')}
+
 /* ----- 레이어 ----- */
 function openLayer(type,id){V.layer={type,id};renderLayer()}
 function closeLayer(){V.layer=null;renderLayer();render()}
@@ -1050,7 +1130,7 @@ function renderLayer(){
   const L=$('#layer');if(!V.layer){L.innerHTML='';document.body.style.overflow='';return}
   document.body.style.overflow='hidden';
   const {type,id}=V.layer,prev=$('#layer .composer input'),val=prev?prev.value:'';
-  L.innerHTML=type==='detail'?detailView(id):type==='chat'?chatRoom(id):type==='logic'?logicView()
+  L.innerHTML=type==='detail'?detailView(id):type==='chat'?chatRoom(id):type==='logic'?logicView():type==='logic-edit'?logicEditView()
     :type==='edit'?formSheet('프로필 수정','edit',secBasic(V.editDraft)+secAbout(V.editDraft)+secInterests(V.editDraft)+secPhotos(V.editDraft))
     :type==='pref'?formSheet('이상형 조건','pref',secPref(U().pref)):'';
   if(type==='chat'){const box=$('#msgs');if(box)box.scrollTop=box.scrollHeight;const inp=$('#layer .composer input');if(inp){inp.value=val;if(matchMedia('(pointer:fine)').matches)inp.focus()}}
@@ -1074,6 +1154,10 @@ document.addEventListener('click',async e=>{
     case 'close-layer':closeLayer();break;
     case 'logic':openLayer('logic');break;
     case 'pref':openLayer('pref');break;
+    case 'logic-edit':openLogicEdit();break;
+    case 'logic-preset':{const w=PRESETS[+t.dataset.i][1];document.querySelectorAll('#layer [data-w]').forEach(r=>r.value=w[r.dataset.w]);readLogicForm();toast(`'${PRESETS[+t.dataset.i][0]}' 비중을 적용했어요 (저장해야 반영)`);break}
+    case 'logic-default':V.logicDraft={w:{...DEFAULT_LOGIC.w},f:{...DEFAULT_LOGIC.f},ri:true};renderLayer();toast('기본값으로 되돌렸어요 (저장해야 반영)');break;
+    case 'logic-reset-now':delete u.logic;u.pref.requireInterest=true;persist();renderLayer();updateTabbar();toast('기본 로직으로 되돌렸어요');break;
     case 'edit':V.editDraft=clone(u.profile);V.photoTarget=V.editDraft;openLayer('edit');break;
     case 'like':like(id);break;
     case 'd-super':like(id,{super:true});break;
@@ -1113,10 +1197,14 @@ document.addEventListener('submit',async e=>{
   else if(k==='chat'){const text=(fd.get('m')||'').trim();if(text){f.querySelector('input').value='';sendMsg(f.dataset.id,text)}}
   else if(k==='edit'){for(const s of ['basic','about','interests','photos']){const err=collect(s,fd,{profile:V.editDraft});if(err)return toast(err)}
     U().profile=V.editDraft;persist();closeLayer();toast('프로필을 저장했어요')}
-  else if(k==='pref'){const d={profile:U().profile},err=collect('pref',fd,d);if(err)return toast(err);
+  else if(k==='logic'){const u=U(),L=V.logicDraft;if(!W_KEYS.some(([w])=>L.w[w]>0))return toast('점수 비중이 모두 0이면 채점할 수 없어요');
+    u.logic={w:{...L.w},f:{...L.f}};u.pref.requireInterest=L.ri;persist();V.layer=null;renderLayer();render();toast('로직을 바꿨어요. 추천을 다시 계산했어요')}
+  else if(k==='pref'){const d={profile:U().profile,pref:U().pref},err=collect('pref',fd,d);if(err)return toast(err);
     U().pref=d.pref;persist();V.layer=null;renderLayer();render();toast('조건을 바꿨어요. 추천을 다시 계산했어요')}
 });
+document.addEventListener('input',e=>{if(e.target.closest('form[data-form=logic]'))readLogicForm()});
 document.addEventListener('change',e=>{
+  if(e.target.closest('form[data-form=logic]'))readLogicForm();
   if(e.target.name==='interests'){const n=document.querySelectorAll('input[name=interests]:checked').length;
     if(n>5){e.target.checked=false;toast('관심사는 5개까지예요')}
     const c=$('#int-count');if(c)c.textContent=document.querySelectorAll('input[name=interests]:checked').length}
